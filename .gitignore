@@ -40,6 +40,11 @@ Thumbs.db
 # Next.js
 apps/web/.next/
 apps/web/out/
+apps/web/.serve-root/
+
+# Playwright
+apps/web/test-results/
+apps/web/playwright-report/
 
 # Testing
 .coverage

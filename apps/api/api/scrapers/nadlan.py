@@ -54,7 +54,9 @@ class NadlanScraper:
         return None
 
     def fetch_transactions(
-        self, session: Session, city: str = "\u05ea\u05dc \u05d0\u05d1\u05d9\u05d1-\u05d9\u05e4\u05d5"
+        self,
+        session: Session,
+        city: str = "\u05ea\u05dc \u05d0\u05d1\u05d9\u05d1-\u05d9\u05e4\u05d5",
     ) -> int:
         """Fetch recent sale transactions for a city.
 
@@ -63,18 +65,102 @@ class NadlanScraper:
         """
         # Placeholder seed data — representative TLV transactions
         sample_transactions = [
-            {"address": "\u05e4\u05dc\u05d5\u05e8\u05e0\u05d8\u05d9\u05df 42", "rooms": 2, "sqm": 50, "floor": 3, "price": 2200000, "date": "2025-10-15"},
-            {"address": "\u05e4\u05dc\u05d5\u05e8\u05e0\u05d8\u05d9\u05df 18", "rooms": 3, "sqm": 75, "floor": 2, "price": 3500000, "date": "2025-09-20"},
-            {"address": "\u05d3\u05d9\u05d6\u05e0\u05d2\u05d5\u05e3 210", "rooms": 3, "sqm": 80, "floor": 4, "price": 4200000, "date": "2025-11-01"},
-            {"address": "\u05d3\u05d9\u05d6\u05e0\u05d2\u05d5\u05e3 88", "rooms": 2.5, "sqm": 65, "floor": 5, "price": 3100000, "date": "2025-10-05"},
-            {"address": "\u05e8\u05d5\u05d8\u05e9\u05d9\u05dc\u05d3 50", "rooms": 3, "sqm": 85, "floor": 3, "price": 5500000, "date": "2025-08-12"},
-            {"address": "\u05e8\u05d5\u05d8\u05e9\u05d9\u05dc\u05d3 22", "rooms": 4, "sqm": 110, "floor": 2, "price": 7800000, "date": "2025-09-30"},
-            {"address": "\u05e9\u05d1\u05d6\u05d9 15", "rooms": 2, "sqm": 55, "floor": 1, "price": 3200000, "date": "2025-10-22"},
-            {"address": "\u05d0\u05d1\u05df \u05d2\u05d1\u05d9\u05e8\u05d5\u05dc 150", "rooms": 3, "sqm": 78, "floor": 6, "price": 4100000, "date": "2025-11-10"},
-            {"address": "\u05d1\u05df \u05d9\u05d4\u05d5\u05d3\u05d4 90", "rooms": 2, "sqm": 52, "floor": 4, "price": 2800000, "date": "2025-09-15"},
-            {"address": "\u05e8\u05de\u05ea \u05d0\u05d1\u05d9\u05d1 \u05d2 30", "rooms": 4, "sqm": 100, "floor": 8, "price": 4500000, "date": "2025-10-01"},
-            {"address": "\u05d1\u05d1\u05dc\u05d9 12", "rooms": 3.5, "sqm": 90, "floor": 5, "price": 4800000, "date": "2025-08-25"},
-            {"address": "\u05d9\u05e4\u05d5 60", "rooms": 2, "sqm": 48, "floor": 2, "price": 1800000, "date": "2025-11-05"},
+            {
+                "address": "\u05e4\u05dc\u05d5\u05e8\u05e0\u05d8\u05d9\u05df 42",
+                "rooms": 2,
+                "sqm": 50,
+                "floor": 3,
+                "price": 2200000,
+                "date": "2025-10-15",
+            },
+            {
+                "address": "\u05e4\u05dc\u05d5\u05e8\u05e0\u05d8\u05d9\u05df 18",
+                "rooms": 3,
+                "sqm": 75,
+                "floor": 2,
+                "price": 3500000,
+                "date": "2025-09-20",
+            },
+            {
+                "address": "\u05d3\u05d9\u05d6\u05e0\u05d2\u05d5\u05e3 210",
+                "rooms": 3,
+                "sqm": 80,
+                "floor": 4,
+                "price": 4200000,
+                "date": "2025-11-01",
+            },
+            {
+                "address": "\u05d3\u05d9\u05d6\u05e0\u05d2\u05d5\u05e3 88",
+                "rooms": 2.5,
+                "sqm": 65,
+                "floor": 5,
+                "price": 3100000,
+                "date": "2025-10-05",
+            },
+            {
+                "address": "\u05e8\u05d5\u05d8\u05e9\u05d9\u05dc\u05d3 50",
+                "rooms": 3,
+                "sqm": 85,
+                "floor": 3,
+                "price": 5500000,
+                "date": "2025-08-12",
+            },
+            {
+                "address": "\u05e8\u05d5\u05d8\u05e9\u05d9\u05dc\u05d3 22",
+                "rooms": 4,
+                "sqm": 110,
+                "floor": 2,
+                "price": 7800000,
+                "date": "2025-09-30",
+            },
+            {
+                "address": "\u05e9\u05d1\u05d6\u05d9 15",
+                "rooms": 2,
+                "sqm": 55,
+                "floor": 1,
+                "price": 3200000,
+                "date": "2025-10-22",
+            },
+            {
+                "address": "\u05d0\u05d1\u05df \u05d2\u05d1\u05d9\u05e8\u05d5\u05dc 150",
+                "rooms": 3,
+                "sqm": 78,
+                "floor": 6,
+                "price": 4100000,
+                "date": "2025-11-10",
+            },
+            {
+                "address": "\u05d1\u05df \u05d9\u05d4\u05d5\u05d3\u05d4 90",
+                "rooms": 2,
+                "sqm": 52,
+                "floor": 4,
+                "price": 2800000,
+                "date": "2025-09-15",
+            },
+            {
+                "address": "\u05e8\u05de\u05ea \u05d0\u05d1\u05d9\u05d1 \u05d2 30",
+                "rooms": 4,
+                "sqm": 100,
+                "floor": 8,
+                "price": 4500000,
+                "date": "2025-10-01",
+            },
+            {
+                "address": "\u05d1\u05d1\u05dc\u05d9 12",
+                "rooms": 3.5,
+                "sqm": 90,
+                "floor": 5,
+                "price": 4800000,
+                "date": "2025-08-25",
+            },
+            {
+                "address": "\u05d9\u05e4\u05d5 60",
+                "rooms": 2,
+                "sqm": 48,
+                "floor": 2,
+                "price": 1800000,
+                "date": "2025-11-05",
+            },
         ]
 
         count = 0
