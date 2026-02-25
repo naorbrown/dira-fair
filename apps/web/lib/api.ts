@@ -1,3 +1,11 @@
+/**
+ * API client — static/local data version.
+ *
+ * Instead of fetching from a FastAPI backend, all functions return data
+ * from the embedded static datasets in data.ts and scoring.ts.
+ * The function signatures remain identical so consumers don't need changes.
+ */
+
 import type {
   Neighborhood,
   NeighborhoodDetail,
@@ -7,47 +15,60 @@ import type {
   SeasonalData,
 } from "./types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
+import {
+  NEIGHBORHOODS,
+  LISTINGS,
+  TREND_DATA,
+  SEASONAL_DATA,
+  getListingsForNeighborhood,
+} from "./data";
 
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-
-  if (!res.ok) {
-    throw new Error(`API error: ${res.status} ${res.statusText}`);
-  }
-
-  return res.json();
-}
+import { checkRentLocal } from "./scoring";
 
 export async function fetchNeighborhoods(): Promise<Neighborhood[]> {
-  return apiFetch<Neighborhood[]>("/neighborhoods");
+  // Return all neighborhoods sorted by name
+  return [...NEIGHBORHOODS].sort((a, b) =>
+    a.name_en.localeCompare(b.name_en)
+  );
 }
 
 export async function fetchNeighborhood(
   slug: string
 ): Promise<NeighborhoodDetail> {
-  return apiFetch<NeighborhoodDetail>(`/neighborhoods/${slug}`);
+  const neighborhood = NEIGHBORHOODS.find((n) => n.slug === slug);
+  if (!neighborhood) {
+    throw new Error("Neighborhood not found");
+  }
+
+  const listings = getListingsForNeighborhood(slug);
+
+  // We don't have sale transactions in the static data, so provide an empty array.
+  // The neighborhood page already handles the empty state gracefully.
+  return {
+    ...neighborhood,
+    listings,
+    recent_transactions: [],
+  };
 }
 
 export async function checkRent(
   data: RentCheckRequest
 ): Promise<RentCheckResponse> {
-  return apiFetch<RentCheckResponse>("/check", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+  return checkRentLocal(
+    data.neighborhood_id,
+    data.rooms,
+    data.sqm,
+    data.monthly_rent
+  );
 }
 
-export async function fetchTrends(months: number = 24): Promise<TrendEntry[]> {
-  return apiFetch<TrendEntry[]>(`/stats/trends?months=${months}`);
+export async function fetchTrends(
+  months: number = 24
+): Promise<TrendEntry[]> {
+  // Return the last N months of trend data
+  return TREND_DATA.slice(-months);
 }
 
 export async function fetchSeasonal(): Promise<SeasonalData[]> {
-  return apiFetch<SeasonalData[]>("/stats/seasonal");
+  return SEASONAL_DATA;
 }
