@@ -23,9 +23,7 @@ def session():
         session.add(hood)
 
         # Seed Yad2 listings
-        for i, price in enumerate(
-            [5000, 5500, 5800, 6000, 6200, 6500, 7000, 7500, 8000, 8500]
-        ):
+        for i, price in enumerate([5000, 5500, 5800, 6000, 6200, 6500, 7000, 7500, 8000, 8500]):
             session.add(
                 RentalListing(
                     id=f"test-{i}",

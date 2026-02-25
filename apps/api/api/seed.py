@@ -4,10 +4,13 @@ Usage:
     cd apps/api
     python -m api.seed
 """
+
 import json
 from pathlib import Path
+
 from sqlmodel import Session
-from api.database import engine, create_db_and_tables
+
+from api.database import create_db_and_tables, engine
 from api.models import Neighborhood
 from api.scrapers.cbs import CBSScraper
 from api.scrapers.nadlan import NadlanScraper

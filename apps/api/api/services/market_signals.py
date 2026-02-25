@@ -47,9 +47,7 @@ def get_signals(neighborhood_id: str, rooms: float, session: Session) -> dict:
     avg_dom = round(avg_dom_result, 1) if avg_dom_result else None
 
     # Trend from rent index
-    recent_indices = session.exec(
-        select(RentIndex).order_by(RentIndex.date.desc()).limit(6)
-    ).all()
+    recent_indices = session.exec(select(RentIndex).order_by(RentIndex.date.desc()).limit(6)).all()
 
     if len(recent_indices) >= 2:
         latest = recent_indices[0].index_value
