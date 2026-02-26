@@ -123,6 +123,26 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── BROWSE CTA ── */}
+      <section className="bg-gradient-to-r from-brand-navy to-brand-teal py-8">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 px-4 sm:flex-row sm:justify-between sm:px-6">
+          <div className="text-center sm:text-left">
+            <p className="text-xl font-bold text-white">
+              {stats.total_listings.toLocaleString()} apartments available right now
+            </p>
+            <p className="text-sm text-gray-300">
+              From {DATA_META.sources.length} sources across {stats.neighborhoods_covered} neighborhoods &middot; Updated daily
+            </p>
+          </div>
+          <Link
+            href="/explore"
+            className="shrink-0 rounded-xl bg-white px-8 py-3 text-sm font-bold text-brand-navy shadow-lg transition hover:bg-gray-50 hover:shadow-xl"
+          >
+            Browse All Listings
+          </Link>
+        </div>
+      </section>
+
       {/* ── SUCCESS STORIES ── */}
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <h2 className="mb-6 text-xl font-bold text-brand-navy">Tenants Who Negotiated &amp; Won</h2>
