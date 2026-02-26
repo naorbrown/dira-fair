@@ -73,6 +73,23 @@ export function getRawNeighborhood(slug: string): NeighborhoodSeed | undefined {
   return RAW_NEIGHBORHOODS.find((n) => n.id === slug);
 }
 
+/** Find the nearest neighborhood to a given lat/lng coordinate. */
+export function findNearestNeighborhood(lat: number, lng: number): Neighborhood | null {
+  if (NEIGHBORHOODS.length === 0) return null;
+  let best = NEIGHBORHOODS[0];
+  let bestDist = Infinity;
+  for (const n of NEIGHBORHOODS) {
+    const dlat = n.lat - lat;
+    const dlng = n.lng - lng;
+    const dist = dlat * dlat + dlng * dlng;
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = n;
+    }
+  }
+  return best;
+}
+
 export function getNeighborhoodRent(slug: string, rooms: number): number | null {
   const n = getRawNeighborhood(slug);
   if (!n) return null;
@@ -274,6 +291,88 @@ const RAW_LISTINGS: ListingSeed[] = [
   { id: "yad2-127", address: "דרך השלום 50", neighborhood_id: "nahalat-yitzhak", rooms: 1, sqm: 35, price: 5000, days_on_market: 5, floor: 6 },
   { id: "yad2-128", address: "השופטים 40", neighborhood_id: "nahalat-yitzhak", rooms: 2.5, sqm: 58, price: 8200, days_on_market: 11, floor: 3 },
   { id: "yad2-129", address: "דרך השלום 70", neighborhood_id: "nahalat-yitzhak", rooms: 3, sqm: 70, price: 9800, days_on_market: 7, floor: 4 },
+  // ── Additional Florentin (4) ──
+  { id: "yad2-130", address: "פלורנטין 65", neighborhood_id: "florentin", rooms: 3.5, sqm: 75, price: 9800, days_on_market: 4, floor: 3, condition: "renovated", elevator: true, balcony: true },
+  { id: "yad2-131", address: "ויטל 30", neighborhood_id: "florentin", rooms: 2, sqm: 46, price: 6200, days_on_market: 15, floor: 2 },
+  { id: "yad2-132", address: "הרצל 38", neighborhood_id: "florentin", rooms: 4, sqm: 85, price: 11200, days_on_market: 3, floor: 4, elevator: true, parking: true },
+  { id: "yad2-133", address: "אלנבי 110", neighborhood_id: "florentin", rooms: 1, sqm: 30, price: 5100, days_on_market: 9, floor: 3 },
+  // ── Additional Old North (4) ──
+  { id: "yad2-134", address: "דיזנגוף 250", neighborhood_id: "old-north", rooms: 2, sqm: 58, price: 10200, days_on_market: 4, floor: 5, condition: "good", elevator: true },
+  { id: "yad2-135", address: "בן יהודה 180", neighborhood_id: "old-north", rooms: 1.5, sqm: 42, price: 7500, days_on_market: 6, floor: 3 },
+  { id: "yad2-136", address: "ארלוזורוב 60", neighborhood_id: "old-north", rooms: 3, sqm: 78, price: 13200, days_on_market: 5, floor: 6, elevator: true, parking: true },
+  { id: "yad2-137", address: "אבן גבירול 150", neighborhood_id: "old-north", rooms: 4.5, sqm: 110, price: 17500, days_on_market: 2, floor: 8, condition: "new", elevator: true, parking: true, mamad: true },
+  // ── Additional New North (4) ──
+  { id: "yad2-138", address: "ז'בוטינסקי 80", neighborhood_id: "new-north", rooms: 2.5, sqm: 60, price: 11500, days_on_market: 3, floor: 6, elevator: true },
+  { id: "yad2-139", address: "ויצמן 55", neighborhood_id: "new-north", rooms: 3, sqm: 82, price: 14200, days_on_market: 5, floor: 9, condition: "new", elevator: true, mamad: true },
+  { id: "yad2-140", address: "פנקס 80", neighborhood_id: "new-north", rooms: 1.5, sqm: 40, price: 8200, days_on_market: 4, floor: 5 },
+  { id: "yad2-141", address: "ז'בוטינסקי 15", neighborhood_id: "new-north", rooms: 5, sqm: 130, price: 22000, days_on_market: 7, floor: 12, condition: "new", elevator: true, parking: true, mamad: true },
+  // ── Additional City Center (4) ──
+  { id: "yad2-142", address: "רוטשילד 100", neighborhood_id: "lev-hair", rooms: 3.5, sqm: 88, price: 14500, days_on_market: 3, floor: 5, condition: "renovated", elevator: true },
+  { id: "yad2-143", address: "בוגרשוב 20", neighborhood_id: "lev-hair", rooms: 2, sqm: 52, price: 8200, days_on_market: 10, floor: 3 },
+  { id: "yad2-144", address: "אלנבי 30", neighborhood_id: "lev-hair", rooms: 1, sqm: 28, price: 5800, days_on_market: 14, floor: 4 },
+  { id: "yad2-145", address: "נחלת בנימין 60", neighborhood_id: "lev-hair", rooms: 4, sqm: 100, price: 16200, days_on_market: 2, floor: 6, condition: "new", elevator: true, parking: true },
+  // ── Additional Neve Tzedek (3) ──
+  { id: "yad2-146", address: "שבזי 15", neighborhood_id: "neve-tzedek", rooms: 1.5, sqm: 40, price: 8800, days_on_market: 6, floor: 2 },
+  { id: "yad2-147", address: "רוקח 18", neighborhood_id: "neve-tzedek", rooms: 3.5, sqm: 90, price: 17500, days_on_market: 3, floor: 3, condition: "renovated", elevator: true },
+  { id: "yad2-148", address: "אהד העם 60", neighborhood_id: "neve-tzedek", rooms: 2, sqm: 55, price: 12000, days_on_market: 5, floor: 2, condition: "renovated" },
+  // ── Additional Kerem HaTeimanim (3) ──
+  { id: "yad2-149", address: "כרם התימנים 40", neighborhood_id: "kerem-hateimanim", rooms: 3, sqm: 62, price: 10800, days_on_market: 4, floor: 3, condition: "renovated" },
+  { id: "yad2-150", address: "גאולה 20", neighborhood_id: "kerem-hateimanim", rooms: 1, sqm: 28, price: 5200, days_on_market: 8, floor: 1 },
+  { id: "yad2-151", address: "נחלת בנימין 40", neighborhood_id: "kerem-hateimanim", rooms: 2, sqm: 52, price: 8000, days_on_market: 7, floor: 3 },
+  // ── Additional Jaffa (4) ──
+  { id: "yad2-152", address: "יפת 100", neighborhood_id: "jaffa", rooms: 3, sqm: 75, price: 8500, days_on_market: 6, floor: 2, condition: "good" },
+  { id: "yad2-153", address: "שבטי ישראל 50", neighborhood_id: "jaffa", rooms: 1.5, sqm: 38, price: 4800, days_on_market: 11, floor: 3 },
+  { id: "yad2-154", address: "אולסבנגר 30", neighborhood_id: "jaffa", rooms: 2, sqm: 48, price: 6200, days_on_market: 9, floor: 2 },
+  { id: "yad2-155", address: "יפת 40", neighborhood_id: "jaffa", rooms: 4, sqm: 95, price: 10800, days_on_market: 5, floor: 3, elevator: true },
+  // ── Additional Ajami (3) ──
+  { id: "yad2-156", address: "קדם 40", neighborhood_id: "ajami", rooms: 3.5, sqm: 80, price: 8000, days_on_market: 10, floor: 2 },
+  { id: "yad2-157", address: "ירושלים 60", neighborhood_id: "ajami", rooms: 1.5, sqm: 35, price: 4200, days_on_market: 12, floor: 1 },
+  { id: "yad2-158", address: "קדם 65", neighborhood_id: "ajami", rooms: 4, sqm: 90, price: 9200, days_on_market: 8, floor: 3 },
+  // ── Additional Ramat Aviv (4) ──
+  { id: "yad2-159", address: "חיים לבנון 40", neighborhood_id: "ramat-aviv", rooms: 2.5, sqm: 62, price: 9200, days_on_market: 5, floor: 4, elevator: true },
+  { id: "yad2-160", address: "ברודצקי 50", neighborhood_id: "ramat-aviv", rooms: 4, sqm: 105, price: 14200, days_on_market: 4, floor: 7, elevator: true, parking: true },
+  { id: "yad2-161", address: "אינשטיין 80", neighborhood_id: "ramat-aviv", rooms: 1.5, sqm: 40, price: 6200, days_on_market: 6, floor: 3 },
+  { id: "yad2-162", address: "אינשטיין 25", neighborhood_id: "ramat-aviv", rooms: 3, sqm: 82, price: 11800, days_on_market: 3, floor: 5, condition: "renovated", elevator: true },
+  // ── Additional Bavli (3) ──
+  { id: "yad2-163", address: "דרך נמיר 60", neighborhood_id: "bavli", rooms: 2, sqm: 50, price: 9200, days_on_market: 5, floor: 5, elevator: true },
+  { id: "yad2-164", address: "ויסבורג 40", neighborhood_id: "bavli", rooms: 4.5, sqm: 115, price: 16000, days_on_market: 3, floor: 6, condition: "new", elevator: true, parking: true },
+  { id: "yad2-165", address: "דרך נמיר 140", neighborhood_id: "bavli", rooms: 1.5, sqm: 40, price: 6800, days_on_market: 7, floor: 4 },
+  // ── Additional Tzahala (3) ──
+  { id: "yad2-166", address: "שמחוני 80", neighborhood_id: "tzahala", rooms: 4.5, sqm: 120, price: 18500, days_on_market: 4, floor: 2, condition: "new", parking: true },
+  { id: "yad2-167", address: "שד' אלוף שדה 40", neighborhood_id: "tzahala", rooms: 1, sqm: 35, price: 6200, days_on_market: 9, floor: 1 },
+  { id: "yad2-168", address: "שמחוני 25", neighborhood_id: "tzahala", rooms: 3, sqm: 88, price: 13000, days_on_market: 6, floor: 2, parking: true },
+  // ── Additional Neve Sha'anan (3) ──
+  { id: "yad2-169", address: "הגדוד העברי 45", neighborhood_id: "neve-shaanan", rooms: 3, sqm: 62, price: 7200, days_on_market: 11, floor: 3 },
+  { id: "yad2-170", address: "נווה שאנן 50", neighborhood_id: "neve-shaanan", rooms: 2, sqm: 40, price: 4800, days_on_market: 16, floor: 2 },
+  { id: "yad2-171", address: "הגדוד העברי 60", neighborhood_id: "neve-shaanan", rooms: 4, sqm: 78, price: 8800, days_on_market: 9, floor: 3 },
+  // ── Additional Shapira (3) ──
+  { id: "yad2-172", address: "סלמה 50", neighborhood_id: "shapira", rooms: 2, sqm: 52, price: 6200, days_on_market: 8, floor: 3 },
+  { id: "yad2-173", address: "שפירא 70", neighborhood_id: "shapira", rooms: 3.5, sqm: 72, price: 8200, days_on_market: 12, floor: 2 },
+  { id: "yad2-174", address: "סלמה 20", neighborhood_id: "shapira", rooms: 1.5, sqm: 35, price: 4500, days_on_market: 10, floor: 1 },
+  // ── Additional Montefiore (3) ──
+  { id: "yad2-175", address: "מונטיפיורי 60", neighborhood_id: "montefiore", rooms: 3.5, sqm: 82, price: 13200, days_on_market: 5, floor: 3, condition: "renovated" },
+  { id: "yad2-176", address: "יבנה 40", neighborhood_id: "montefiore", rooms: 1.5, sqm: 38, price: 7000, days_on_market: 7, floor: 2 },
+  { id: "yad2-177", address: "מונטיפיורי 45", neighborhood_id: "montefiore", rooms: 2, sqm: 48, price: 8800, days_on_market: 6, floor: 4 },
+  // ── Additional Sarona (3) ──
+  { id: "yad2-178", address: "קפלן 10", neighborhood_id: "sarona", rooms: 3.5, sqm: 90, price: 17200, days_on_market: 2, floor: 22, condition: "new", elevator: true, parking: true, mamad: true },
+  { id: "yad2-179", address: "לאונרדו דה וינצ'י 40", neighborhood_id: "sarona", rooms: 2, sqm: 52, price: 12200, days_on_market: 4, floor: 14, elevator: true },
+  { id: "yad2-180", address: "קפלן 60", neighborhood_id: "sarona", rooms: 1.5, sqm: 42, price: 9000, days_on_market: 5, floor: 11, elevator: true },
+  // ── Additional Kiryat Shalom (3) ──
+  { id: "yad2-181", address: "רחל 35", neighborhood_id: "kiryat-shalom", rooms: 3, sqm: 70, price: 6500, days_on_market: 13, floor: 2 },
+  { id: "yad2-182", address: "בר אילן 60", neighborhood_id: "kiryat-shalom", rooms: 1.5, sqm: 32, price: 3800, days_on_market: 10, floor: 3 },
+  { id: "yad2-183", address: "רחל 50", neighborhood_id: "kiryat-shalom", rooms: 4, sqm: 82, price: 8200, days_on_market: 7, floor: 2 },
+  // ── Additional HaTikva (3) ──
+  { id: "yad2-184", address: "התקווה 60", neighborhood_id: "hatikva", rooms: 3, sqm: 68, price: 6500, days_on_market: 10, floor: 3 },
+  { id: "yad2-185", address: "אתרים 55", neighborhood_id: "hatikva", rooms: 1.5, sqm: 32, price: 3500, days_on_market: 14, floor: 2 },
+  { id: "yad2-186", address: "התקווה 75", neighborhood_id: "hatikva", rooms: 4, sqm: 80, price: 7800, days_on_market: 8, floor: 3 },
+  // ── Additional Yad Eliyahu (3) ──
+  { id: "yad2-187", address: "הבנים 55", neighborhood_id: "yad-eliyahu", rooms: 3, sqm: 75, price: 9500, days_on_market: 5, floor: 4, elevator: true },
+  { id: "yad2-188", address: "שטרן 75", neighborhood_id: "yad-eliyahu", rooms: 1.5, sqm: 38, price: 5200, days_on_market: 8, floor: 3 },
+  { id: "yad2-189", address: "הבנים 70", neighborhood_id: "yad-eliyahu", rooms: 4, sqm: 92, price: 11500, days_on_market: 4, floor: 2, parking: true },
+  // ── Additional Nahalat Yitzhak (3) ──
+  { id: "yad2-190", address: "השופטים 55", neighborhood_id: "nahalat-yitzhak", rooms: 3, sqm: 72, price: 10500, days_on_market: 5, floor: 4, elevator: true },
+  { id: "yad2-191", address: "דרך השלום 90", neighborhood_id: "nahalat-yitzhak", rooms: 1.5, sqm: 38, price: 5500, days_on_market: 7, floor: 3 },
+  { id: "yad2-192", address: "השופטים 70", neighborhood_id: "nahalat-yitzhak", rooms: 4.5, sqm: 105, price: 14000, days_on_market: 3, floor: 5, elevator: true, parking: true },
 ];
 
 // ---------------------------------------------------------------------------

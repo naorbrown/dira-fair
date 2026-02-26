@@ -4,23 +4,27 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Neighborhood } from "@/lib/types";
 import { fetchNeighborhoods } from "@/lib/api";
+import { findNearestNeighborhood } from "@/lib/data";
+import AddressAutocomplete from "./address-autocomplete";
+import type { AddressResult } from "./address-autocomplete";
 
 /**
  * Israeli room count: In Israel, "rooms" includes the living room (salon).
  * A "3-room apartment" = 2 bedrooms + 1 living room.
- * Half rooms (e.g., 2.5) mean a small room that can serve as a study/storage.
+ * Half rooms (e.g., 2.5) = a small enclosed space such as a closed balcony,
+ * study/office nook, or storage room — not a full bedroom.
  */
 const ROOM_OPTIONS = [1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
 
 const ROOM_LABELS: Record<number, string> = {
   1: "1 room (studio)",
-  1.5: "1.5 rooms",
+  1.5: "1.5 rooms (studio + half room)",
   2: "2 rooms (1 bed + salon)",
-  2.5: "2.5 rooms",
+  2.5: "2.5 rooms (1 bed + salon + half room)",
   3: "3 rooms (2 bed + salon)",
-  3.5: "3.5 rooms",
+  3.5: "3.5 rooms (2 bed + salon + half room)",
   4: "4 rooms (3 bed + salon)",
-  4.5: "4.5 rooms",
+  4.5: "4.5 rooms (3 bed + salon + half room)",
   5: "5 rooms (4 bed + salon)",
 };
 
@@ -37,6 +41,9 @@ export default function RentCheckerForm({
   const [loading, setLoading] = useState(true);
 
   const [neighborhoodId, setNeighborhoodId] = useState("");
+  const [detectedNeighborhood, setDetectedNeighborhood] = useState<string | null>(null);
+  const [address, setAddress] = useState("");
+  const [useManualSelect, setUseManualSelect] = useState(false);
   const [rooms, setRooms] = useState("3");
   const [sqm, setSqm] = useState("");
   const [rent, setRent] = useState("");
@@ -50,6 +57,25 @@ export default function RentCheckerForm({
       })
       .catch(() => setLoading(false));
   }, []);
+
+  function handleAddressSelect(result: AddressResult) {
+    const nearest = findNearestNeighborhood(result.lat, result.lng);
+    if (nearest) {
+      setNeighborhoodId(String(nearest.id));
+      setDetectedNeighborhood(nearest.name_en);
+    }
+  }
+
+  function handleManualToggle() {
+    setUseManualSelect(!useManualSelect);
+    if (!useManualSelect) {
+      // Switching to manual — clear auto-detected
+      setDetectedNeighborhood(null);
+    } else {
+      // Switching to address — clear manual selection
+      setNeighborhoodId("");
+    }
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -68,6 +94,11 @@ export default function RentCheckerForm({
   const isInline = variant === "inline";
   const isCard = variant === "card";
 
+  const inputClasses =
+    "w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20";
+  const inlineInputClasses =
+    "w-full rounded-lg border border-gray-200 bg-white/90 px-3 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 backdrop-blur";
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -77,28 +108,52 @@ export default function RentCheckerForm({
           : "space-y-4"
       }
     >
-      {/* Neighborhood */}
+      {/* Address / Neighborhood */}
       <div>
         {isCard && (
-          <label className="mb-1 block text-sm font-medium text-gray-700">
-            Neighborhood
-          </label>
+          <div className="mb-1 flex items-baseline justify-between">
+            <label className="block text-sm font-medium text-gray-700">
+              {useManualSelect ? "Neighborhood" : "Address"}
+            </label>
+            <button
+              type="button"
+              onClick={handleManualToggle}
+              className="text-xs text-brand-teal hover:underline"
+            >
+              {useManualSelect ? "Search by address instead" : "Or select neighborhood"}
+            </button>
+          </div>
         )}
-        <select
-          value={neighborhoodId}
-          onChange={(e) => setNeighborhoodId(e.target.value)}
-          required
-          className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20"
-        >
-          <option value="">
-            {loading ? "Loading..." : "Select neighborhood"}
-          </option>
-          {neighborhoods.map((n) => (
-            <option key={n.id} value={n.id}>
-              {n.name_en}
+        {useManualSelect ? (
+          <select
+            value={neighborhoodId}
+            onChange={(e) => setNeighborhoodId(e.target.value)}
+            required
+            className={inputClasses}
+          >
+            <option value="">
+              {loading ? "Loading..." : "Select neighborhood"}
             </option>
-          ))}
-        </select>
+            {neighborhoods.map((n) => (
+              <option key={n.id} value={n.id}>
+                {n.name_en}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <AddressAutocomplete
+            value={address}
+            onChange={setAddress}
+            onSelect={handleAddressSelect}
+            placeholder={isInline ? "Address" : "Type your address in Tel Aviv..."}
+            className={isInline ? inlineInputClasses : inputClasses}
+            detectedNeighborhood={detectedNeighborhood}
+          />
+        )}
+        {/* Hidden input to satisfy form validation when using address autocomplete */}
+        {!useManualSelect && (
+          <input type="hidden" name="neighborhood" value={neighborhoodId} />
+        )}
       </div>
 
       {/* Rooms */}
@@ -108,7 +163,7 @@ export default function RentCheckerForm({
             Rooms{" "}
             <span
               className="cursor-help text-xs text-gray-400"
-              title="Israeli room count: includes the living room (salon). A 3-room apartment = 2 bedrooms + salon."
+              title="Israeli room count: includes the living room (salon). A 3-room apartment = 2 bedrooms + salon. A half room (+0.5) is a small enclosed space like a closed balcony, study, or storage room."
             >
               (Israeli count *)
             </span>
@@ -118,7 +173,7 @@ export default function RentCheckerForm({
           value={rooms}
           onChange={(e) => setRooms(e.target.value)}
           required
-          className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20"
+          className={inputClasses}
         >
           {ROOM_OPTIONS.map((r) => (
             <option key={r} value={r}>
@@ -143,7 +198,7 @@ export default function RentCheckerForm({
               required
               min={10}
               max={500}
-              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20"
+              className={`${inputClasses} placeholder:text-gray-400`}
             />
           </div>
 
@@ -183,7 +238,7 @@ export default function RentCheckerForm({
               required
               min={10}
               max={500}
-              className="w-full rounded-lg border border-gray-200 bg-white/90 px-3 py-2.5 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-brand-teal focus:ring-2 focus:ring-brand-teal/20 backdrop-blur"
+              className={inlineInputClasses}
             />
           </div>
 
@@ -211,7 +266,7 @@ export default function RentCheckerForm({
       {/* Room count note (card variant only) */}
       {isCard && (
         <p className="text-xs text-gray-400">
-          * In Israel, room count includes the living room (salon). A &ldquo;3-room&rdquo; apartment = 2 bedrooms + salon.
+          * In Israel, room count includes the living room (salon). A &ldquo;3-room&rdquo; apartment = 2 bedrooms + salon. A &ldquo;half room&rdquo; (+0.5) is a small enclosed space — closed balcony, study nook, or storage room.
         </p>
       )}
 
@@ -219,7 +274,7 @@ export default function RentCheckerForm({
       <div className={isInline ? "flex items-end" : ""}>
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || (!neighborhoodId && !useManualSelect)}
           className="w-full rounded-lg bg-brand-teal px-6 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-brand-teal-light hover:shadow-lg disabled:opacity-60"
         >
           {submitting ? "Checking..." : "Check My Rent"}
