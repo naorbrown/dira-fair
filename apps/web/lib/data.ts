@@ -661,8 +661,8 @@ export const DATA_META = {
   neighborhood_count: RAW_NEIGHBORHOODS.length,
   sources: [
     { name: "Yad2", type: "Rental listings", period: "Q1 2026", url: "https://www.yad2.co.il/realestate/rent?city=5000" },
-    { name: "CBS", type: "Official rent survey", period: "Q4 2025", url: "https://www.cbs.gov.il/en/subjects/Pages/Rent.aspx" },
-    { name: "nadlan.gov.il", type: "Sale transactions", period: "Q3-Q4 2025", url: "https://www.nadlan.gov.il/" },
+    { name: "CBS", type: "Official rent survey", period: "Q4 2025", url: "https://www.cbs.gov.il/en/subjects/Pages/Average-Monthly-Prices-of-Rent.aspx" },
+    { name: "nadlan.gov.il", type: "Sale transactions", period: "Q3-Q4 2025", url: "https://www.gov.il/en/service/real_estate_information" },
   ],
   cbs_period: "Q4 2025",
 };
@@ -726,10 +726,10 @@ export const SUCCESS_STORIES: SuccessStory[] = [
 
 export const USEFUL_LINKS = [
   { label: "Search apartments on Yad2", url: "https://www.yad2.co.il/realestate/rent?city=5000", description: "Israel's largest rental listing site" },
-  { label: "CBS Rent Statistics", url: "https://www.cbs.gov.il/en/subjects/Pages/Rent.aspx", description: "Official government rent data" },
-  { label: "Property transactions (nadlan.gov.il)", url: "https://www.nadlan.gov.il/", description: "Official sale prices & property data" },
-  { label: "Tenant rights in Israel (Kol Zchut)", url: "https://www.kolzchut.org.il/en/Tenants%27_rights", description: "Legal rights & protections for renters" },
-  { label: "Israeli rent law guide", url: "https://www.kolzchut.org.il/en/Rental_Housing", description: "Comprehensive rental law information" },
+  { label: "CBS Rent Statistics", url: "https://www.cbs.gov.il/en/subjects/Pages/Average-Monthly-Prices-of-Rent.aspx", description: "Official government rent data" },
+  { label: "Property transactions (nadlan.gov.il)", url: "https://www.gov.il/en/service/real_estate_information", description: "Official sale prices & property data" },
+  { label: "Israel Fair Rental Law guide", url: "https://lawoffice.org.il/en/fair-rental-law/", description: "Key tenant protections under the 2017 Fair Rental Law" },
+  { label: "Landlord & tenant laws in Israel", url: "https://www.globalpropertyguide.com/middle-east/israel/landlord-and-tenant", description: "Comprehensive rental law overview for tenants" },
 ];
 
 // ---------------------------------------------------------------------------

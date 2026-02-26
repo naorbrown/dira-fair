@@ -104,7 +104,7 @@ test.describe('Landing page', () => {
     await expect(section).toBeVisible();
 
     // Tenant rights link
-    const kolZchutLink = page.locator('a[href*="kolzchut"]').first();
-    await expect(kolZchutLink).toBeVisible();
+    const tenantRightsLink = page.locator('a[href*="lawoffice.org.il"]').first();
+    await expect(tenantRightsLink).toBeVisible();
   });
 });
