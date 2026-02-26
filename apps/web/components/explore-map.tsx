@@ -1,8 +1,9 @@
 "use client";
 
-import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Tooltip, ZoomControl, useMap, useMapEvents } from "react-leaflet";
 import { formatRent } from "@/lib/format";
-import { useEffect, useCallback, useRef } from "react";
+import { getNeighborhoodName } from "@/lib/data";
+import { useEffect, useRef } from "react";
 import type { RentalListing } from "@/lib/types";
 
 // ── Price color scale ──
@@ -12,14 +13,6 @@ function priceColor(rent: number): string {
   if (rent <= 9000) return "#ca8a04"; // amber
   if (rent <= 12000) return "#ea580c"; // orange
   return "#dc2626"; // red
-}
-
-function priceColorBg(rent: number): string {
-  if (rent <= 5000) return "bg-green-500";
-  if (rent <= 7000) return "bg-lime-500";
-  if (rent <= 9000) return "bg-amber-500";
-  if (rent <= 12000) return "bg-orange-500";
-  return "bg-red-500";
 }
 
 // ── Map controller for external interactions ──
@@ -114,93 +107,95 @@ export default function ExploreMap({
   onSelect,
   onBoundsChange,
 }: ExploreMapProps) {
-  // Cluster nearby listings when many are visible
-  // For performance, we render individual markers up to ~500 and simplify beyond
-  const visibleListings = listings.slice(0, 500);
+  const visibleListings = listings.slice(0, 600);
 
   return (
-    <MapContainer
-      center={[32.075, 34.78]}
-      zoom={13}
-      scrollWheelZoom={true}
-      zoomControl={false}
-      className="h-full w-full"
-      style={{ minHeight: "100%" }}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-      />
-      <MapController
-        listings={listings}
-        hoveredId={hoveredId}
-        selectedId={selectedId}
-        onBoundsChange={onBoundsChange}
-      />
+    <div role="region" aria-label="Interactive map of rental listings" className="h-full w-full">
+      <MapContainer
+        center={[32.075, 34.78]}
+        zoom={13}
+        scrollWheelZoom={true}
+        zoomControl={false}
+        className="h-full w-full"
+        style={{ minHeight: "100%" }}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+        />
+        <ZoomControl position="bottomright" />
+        <MapController
+          listings={listings}
+          hoveredId={hoveredId}
+          selectedId={selectedId}
+          onBoundsChange={onBoundsChange}
+        />
 
-      {visibleListings.map((listing) => {
-        const isHovered = listing.id === hoveredId;
-        const isSelected = listing.id === selectedId;
-        const color = priceColor(listing.monthly_rent);
-        const active = isHovered || isSelected;
+        {visibleListings.map((listing) => {
+          const isHovered = listing.id === hoveredId;
+          const isSelected = listing.id === selectedId;
+          const color = priceColor(listing.monthly_rent);
+          const active = isHovered || isSelected;
 
-        return (
-          <CircleMarker
-            key={listing.id}
-            center={[listing.lat, listing.lng]}
-            radius={active ? 10 : 6}
-            pathOptions={{
-              color: active ? "#1e293b" : "#fff",
-              fillColor: color,
-              fillOpacity: active ? 1 : 0.8,
-              weight: active ? 2.5 : 1.5,
-            }}
-            eventHandlers={{
-              click: () => onSelect(listing.id === selectedId ? null : listing.id),
-              mouseover: () => onHover(listing.id),
-              mouseout: () => onHover(null),
-            }}
-          >
-            <Tooltip direction="top" offset={[0, -10]} opacity={0.95}>
-              <div className="min-w-[160px] p-0.5">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-bold">{formatRent(listing.monthly_rent)}/mo</span>
-                  <span className={`rounded px-1 py-0.5 text-[10px] font-medium ${sourceBadgeColor(listing.source)}`}>
-                    {listing.source}
-                  </span>
+          return (
+            <CircleMarker
+              key={listing.id}
+              center={[listing.lat, listing.lng]}
+              radius={active ? 10 : 6}
+              pathOptions={{
+                color: active ? "#1e293b" : "#fff",
+                fillColor: color,
+                fillOpacity: active ? 1 : 0.8,
+                weight: active ? 2.5 : 1.5,
+              }}
+              eventHandlers={{
+                click: () => onSelect(listing.id === selectedId ? null : listing.id),
+                mouseover: () => onHover(listing.id),
+                mouseout: () => onHover(null),
+              }}
+            >
+              <Tooltip direction="top" offset={[0, -10]} opacity={0.95}>
+                <div className="min-w-[170px] p-0.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-bold">{formatRent(listing.monthly_rent)}/mo</span>
+                    <span className={`rounded px-1 py-0.5 text-[10px] font-medium ${sourceBadgeColor(listing.source)}`}>
+                      {listing.source}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-gray-600">{listing.address}</p>
+                  <p className="text-xs text-gray-500">
+                    {getNeighborhoodName(listing.neighborhood)} &middot; {listing.rooms}r &middot; {listing.sqm}m&sup2;
+                    {listing.floor ? ` &middot; Floor ${listing.floor}` : ""}
+                  </p>
+                  <div className="mt-1 flex gap-1">
+                    {listing.has_elevator && <span className="rounded bg-gray-100 px-1 text-[9px]">Elevator</span>}
+                    {listing.has_parking && <span className="rounded bg-gray-100 px-1 text-[9px]">Parking</span>}
+                    {listing.has_balcony && <span className="rounded bg-gray-100 px-1 text-[9px]">Balcony</span>}
+                    {listing.has_ac && <span className="rounded bg-gray-100 px-1 text-[9px]">A/C</span>}
+                    {listing.has_mamad && <span className="rounded bg-gray-100 px-1 text-[9px]">Mamad</span>}
+                  </div>
+                  <p className="mt-1 text-[10px] text-brand-teal">Click to select</p>
                 </div>
-                <p className="mt-0.5 text-xs text-gray-600">{listing.address}</p>
-                <p className="text-xs text-gray-500">
-                  {listing.rooms}r &middot; {listing.sqm}m&sup2;
-                  {listing.floor ? ` &middot; Floor ${listing.floor}` : ""}
-                </p>
-                <div className="mt-1 flex gap-1">
-                  {listing.has_elevator && <span className="rounded bg-gray-100 px-1 text-[9px]">Elevator</span>}
-                  {listing.has_parking && <span className="rounded bg-gray-100 px-1 text-[9px]">Parking</span>}
-                  {listing.has_balcony && <span className="rounded bg-gray-100 px-1 text-[9px]">Balcony</span>}
-                  {listing.has_ac && <span className="rounded bg-gray-100 px-1 text-[9px]">A/C</span>}
-                  {listing.has_mamad && <span className="rounded bg-gray-100 px-1 text-[9px]">Mamad</span>}
-                </div>
-              </div>
-            </Tooltip>
-          </CircleMarker>
-        );
-      })}
-    </MapContainer>
+              </Tooltip>
+            </CircleMarker>
+          );
+        })}
+      </MapContainer>
+    </div>
   );
 }
 
 // ── Price Legend ──
 export function PriceLegend() {
   const bands = [
-    { label: "< 5K", color: "bg-green-500" },
-    { label: "5-7K", color: "bg-lime-500" },
-    { label: "7-9K", color: "bg-amber-500" },
-    { label: "9-12K", color: "bg-orange-500" },
-    { label: "> 12K", color: "bg-red-500" },
+    { label: "< ₪5K", color: "bg-green-500" },
+    { label: "₪5-7K", color: "bg-lime-500" },
+    { label: "₪7-9K", color: "bg-amber-500" },
+    { label: "₪9-12K", color: "bg-orange-500" },
+    { label: "> ₪12K", color: "bg-red-500" },
   ];
   return (
-    <div className="flex items-center gap-2 text-[10px] text-gray-500">
+    <div className="flex items-center gap-2 text-[10px] text-gray-500" aria-label="Price legend">
       {bands.map((b) => (
         <div key={b.label} className="flex items-center gap-0.5">
           <span className={`inline-block h-2.5 w-2.5 rounded-full ${b.color}`} />

@@ -6,7 +6,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { checkRent } from "@/lib/api";
 import { formatRent } from "@/lib/format";
-import { NEIGHBORHOODS, getQualityComparables, getYad2SearchUrl, SOURCE_LABELS, SUCCESS_STORIES, USEFUL_LINKS, DATA_META } from "@/lib/data";
+import { NEIGHBORHOODS, getExpandedComparables, getYad2SearchUrl, SOURCE_LABELS, getNeighborhoodName } from "@/lib/data";
 import RentScoreCard from "@/components/rent-score-card";
 import PriceDistribution from "@/components/price-distribution";
 import type { RentCheckResponse, RentalListing } from "@/lib/types";
@@ -14,7 +14,7 @@ import type { RentCheckResponse, RentalListing } from "@/lib/types";
 const ListingMap = dynamic(() => import("@/components/listing-map"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-[350px] items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400">
+    <div className="flex h-[400px] items-center justify-center rounded-xl bg-gray-100 text-sm text-gray-400">
       Loading map...
     </div>
   ),
@@ -28,7 +28,7 @@ function LoadingSkeleton() {
       <div className="h-16 rounded-2xl bg-gray-200" />
       <div className="h-48 rounded-2xl bg-gray-200" />
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="h-[350px] rounded-xl bg-gray-200" />
+        <div className="h-[400px] rounded-xl bg-gray-200" />
         <div className="space-y-3">
           <div className="h-16 rounded-xl bg-gray-200" />
           <div className="h-16 rounded-xl bg-gray-200" />
@@ -39,7 +39,7 @@ function LoadingSkeleton() {
   );
 }
 
-/* ── Quality badge icons ────────────────────────────────────── */
+/* ── Quality badge ────────────────────────────────────── */
 
 function QualityBadge({ label, active }: { label: string; active: boolean }) {
   return (
@@ -72,12 +72,16 @@ function CompRow({
 }) {
   const diff = userRent - comp.monthly_rent;
   const cheaper = diff > 0;
+  const nhoodName = getNeighborhoodName(comp.neighborhood);
 
   return (
-    <div
+    <a
+      href={comp.source_url}
+      target="_blank"
+      rel="noopener noreferrer"
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
-      className={`rounded-lg border px-4 py-3 transition ${
+      className={`block rounded-lg border px-4 py-3 transition ${
         isHovered
           ? "border-brand-teal bg-brand-teal/5 shadow-sm"
           : "border-gray-100 bg-white hover:border-gray-200"
@@ -89,17 +93,12 @@ function CompRow({
             <p className="truncate text-sm font-medium text-gray-900">
               {comp.address}
             </p>
-            <a
-              href={comp.source_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 rounded bg-brand-teal/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-teal hover:bg-brand-teal/20"
-            >
+            <span className="shrink-0 rounded bg-brand-teal/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-teal">
               {SOURCE_LABELS[comp.source as keyof typeof SOURCE_LABELS] ?? comp.source}
-            </a>
+            </span>
           </div>
           <p className="mt-0.5 text-xs text-gray-500">
-            {comp.rooms} rooms &middot; {comp.sqm} sqm &middot; Floor {comp.floor ?? "–"}
+            {nhoodName} &middot; {comp.rooms} rooms &middot; {comp.sqm} sqm &middot; Floor {comp.floor ?? "–"}
             {comp.total_floors ? `/${comp.total_floors}` : ""}
             &middot; {comp.days_on_market}d listed
           </p>
@@ -128,11 +127,11 @@ function CompRow({
             <p className="text-xs text-gray-400">Same price</p>
           )}
           <p className="mt-1 text-[10px] text-gray-400">
-            Quality: {comp.quality_score}/100 &middot; Match: {comp.similarity_score}%
+            Match: {comp.similarity_score}%
           </p>
         </div>
       </div>
-    </div>
+    </a>
   );
 }
 
@@ -172,13 +171,14 @@ function CheckContent() {
     })
       .then((data) => {
         setResult(data);
-        // Get quality-weighted comparables
-        const fullComps = getQualityComparables(
+        // Get expanded comparables from nearby neighborhoods too
+        const fullComps = getExpandedComparables(
           neighborhoodSlug,
           parseFloat(rooms),
           parseInt(sqm, 10),
           null,
-          10
+          25,
+          5
         );
         setCompsWithCoords(fullComps);
         setLoading(false);
@@ -210,7 +210,7 @@ function CheckContent() {
   const diff = Math.abs(your_rent - market_avg);
   const cheaperCount = compsWithCoords.filter((c) => c.monthly_rent < your_rent).length;
 
-  // Map data
+  // Map data with neighborhood names
   const mapComps = compsWithCoords.map((c) => ({
     address: c.address,
     rooms: c.rooms,
@@ -220,6 +220,7 @@ function CheckContent() {
     lat: c.lat,
     lng: c.lng,
     source_url: c.source_url,
+    neighborhood: getNeighborhoodName(c.neighborhood),
   }));
 
   // Market context
@@ -227,16 +228,13 @@ function CheckContent() {
   const contextParts: string[] = [];
   if (signals.trend !== "Unknown") contextParts.push(`Trend: ${signals.trend}`);
   contextParts.push(`Season: ${signals.season}`);
-  contextParts.push(`Supply: ${signals.supply} (${compsWithCoords.length} similar listings)`);
+  contextParts.push(`Supply: ${signals.supply} (${compsWithCoords.length} similar)`);
   if (signals.days_on_market > 0) contextParts.push(`Avg ${signals.days_on_market}d to rent`);
 
-  // Yad2 search link for this query
   const yad2SearchUrl = getYad2SearchUrl(neighborhoodSlug, parseFloat(rooms));
 
-  // Relevant success story
-  const relevantStory = SUCCESS_STORIES.find(
-    (s) => s.neighborhood === neighborhoodName || s.rooms === parseFloat(rooms)
-  ) ?? SUCCESS_STORIES[0];
+  // Count how many nearby neighborhoods are represented
+  const nearbyAreaCount = new Set(compsWithCoords.map((c) => c.neighborhood)).size;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
@@ -279,7 +277,7 @@ function CheckContent() {
             <a href={yad2SearchUrl} target="_blank" rel="noopener noreferrer" className="text-brand-teal underline hover:text-brand-teal-light">
               {cheaperCount} cheaper apartment{cheaperCount !== 1 ? "s" : ""}
             </a>{" "}
-            available right now in {neighborhoodName}
+            found across {nearbyAreaCount} area{nearbyAreaCount !== 1 ? "s" : ""}
           </p>
         )}
         {score === "below_market" && (
@@ -306,11 +304,11 @@ function CheckContent() {
         <div className="mt-8">
           <div className="mb-4 flex items-baseline justify-between">
             <h2 className="text-lg font-bold text-gray-900">
-              Comparable Apartments
+              Nearby Listings
             </h2>
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-500">
-                {compsWithCoords.length} similar &middot; sorted by match quality
+                {compsWithCoords.length} listings across {nearbyAreaCount} area{nearbyAreaCount !== 1 ? "s" : ""}
               </span>
               <a
                 href={yad2SearchUrl}
@@ -318,14 +316,14 @@ function CheckContent() {
                 rel="noopener noreferrer"
                 className="rounded-lg bg-brand-teal/10 px-3 py-1 text-xs font-medium text-brand-teal hover:bg-brand-teal/20"
               >
-                Browse all on Yad2 &rarr;
+                Search on Yad2
               </a>
             </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {/* Map */}
-            <div className="h-[400px] overflow-hidden rounded-xl border border-gray-200 lg:h-auto">
+            <div className="h-[450px] overflow-hidden rounded-xl border border-gray-200 lg:h-auto lg:min-h-[500px]">
               <ListingMap
                 center={[neighborhood?.lat ?? 32.07, neighborhood?.lng ?? 34.78]}
                 comparables={mapComps}
@@ -335,7 +333,7 @@ function CheckContent() {
             </div>
 
             {/* Listing cards */}
-            <div className="max-h-[500px] space-y-2 overflow-y-auto pr-1">
+            <div className="max-h-[550px] space-y-2 overflow-y-auto pr-1">
               {compsWithCoords.map((comp, i) => (
                 <CompRow
                   key={comp.id}
@@ -390,55 +388,6 @@ function CheckContent() {
         </div>
       )}
 
-      {/* ── SUCCESS STORY ── */}
-      {score === "above_market" && relevantStory && (
-        <div className="mt-8 rounded-xl border border-score-green/20 bg-score-green-bg p-5">
-          <h3 className="mb-2 text-sm font-bold text-score-green">Others Have Done It</h3>
-          <p className="text-sm text-gray-700">
-            A tenant in {relevantStory.neighborhood} with a {relevantStory.rooms}-room apartment
-            negotiated from {formatRent(relevantStory.before_rent)} down to {formatRent(relevantStory.after_rent)}/mo,
-            saving {formatRent(relevantStory.savings_annual)}/year.
-          </p>
-          <p className="mt-2 text-sm text-gray-600">
-            <strong>Strategy:</strong> {relevantStory.strategy}
-          </p>
-          <p className="mt-1 text-xs italic text-gray-500">&ldquo;{relevantStory.quote}&rdquo;</p>
-        </div>
-      )}
-
-      {/* ── ALTERNATIVE NEIGHBORHOODS ── */}
-      {score === "above_market" && (
-        <div className="mt-8">
-          <h2 className="mb-3 text-lg font-bold text-gray-900">Consider Nearby Neighborhoods</h2>
-          <p className="mb-3 text-sm text-gray-500">
-            Apartments with similar features at lower prices in other areas:
-          </p>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {NEIGHBORHOODS
-              .filter((n) => n.slug !== neighborhoodSlug && n.avg_rent_2br != null)
-              .sort((a, b) => (a.avg_rent_2br ?? 0) - (b.avg_rent_2br ?? 0))
-              .filter((n) => (n.avg_rent_2br ?? 0) < your_rent)
-              .slice(0, 4)
-              .map((n) => (
-                <Link
-                  key={n.slug}
-                  href={`/neighborhood/${n.slug}`}
-                  className="group rounded-xl border border-gray-100 bg-white p-3 transition hover:border-brand-teal/30 hover:shadow-md"
-                >
-                  <p className="text-sm font-semibold text-gray-900 group-hover:text-brand-teal">{n.name_en}</p>
-                  <p className="text-lg font-bold text-brand-navy">{formatRent(n.avg_rent_2br!)}</p>
-                  <p className="text-xs text-score-green">
-                    Save ~{formatRent(your_rent - n.avg_rent_2br!)}/mo
-                  </p>
-                  <p className="mt-1 text-[10px] text-brand-teal">
-                    {n.listing_count} listings &rarr;
-                  </p>
-                </Link>
-              ))}
-          </div>
-        </div>
-      )}
-
       {/* ── FOOTER CTA ── */}
       <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">
         <a
@@ -447,13 +396,13 @@ function CheckContent() {
           rel="noopener noreferrer"
           className="rounded-lg border border-brand-navy px-6 py-2.5 text-center text-sm font-semibold text-brand-navy transition hover:bg-brand-navy hover:text-white"
         >
-          Browse {neighborhoodName} on Yad2
+          Browse on Yad2
         </a>
         <Link
-          href={`/neighborhood/${neighborhoodSlug}`}
+          href="/explore"
           className="rounded-lg border border-gray-300 px-6 py-2.5 text-center text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
         >
-          All listings in {neighborhoodName}
+          Explore All Listings
         </Link>
         <Link
           href="/#check"
@@ -461,20 +410,6 @@ function CheckContent() {
         >
           Check Another Apartment
         </Link>
-      </div>
-
-      {/* Data source attribution */}
-      <div className="mt-6 text-center text-xs text-gray-400">
-        <p>
-          Based on {result.confidence.comparable_count} comparable listings &middot; Source: {result.confidence.data_source}
-        </p>
-        <div className="mt-2 flex flex-wrap justify-center gap-3">
-          {DATA_META.sources.map((s) => (
-            <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer" className="hover:text-brand-teal">
-              {s.name} ({s.period})
-            </a>
-          ))}
-        </div>
       </div>
     </div>
   );
