@@ -60,6 +60,14 @@ const RAW_NEIGHBORHOODS: NeighborhoodSeed[] = [
   { id: "rothschild", name_en: "Rothschild", name_he: "רוטשילד", lat: 32.064, lng: 34.774, avg_rent_1br: 7500, avg_rent_2br: 10500, avg_rent_3br: 14000, avg_rent_4br: 18500, avg_price_sqm: 68000 },
   { id: "hadar-yosef", name_en: "Hadar Yosef", name_he: "הדר יוסף", lat: 32.100, lng: 34.800, avg_rent_1br: 5500, avg_rent_2br: 8000, avg_rent_3br: 10500, avg_rent_4br: 13000, avg_price_sqm: 46000 },
   { id: "tel-baruch", name_en: "Tel Baruch", name_he: "תל ברוך", lat: 32.118, lng: 34.790, avg_rent_1br: 5200, avg_rent_2br: 7800, avg_rent_3br: 10200, avg_rent_4br: 13000, avg_price_sqm: 42000 },
+  // ── Neighboring cities (Gush Dan) — browsable via Explore, not shown as "nearby" ──
+  { id: "ramat-gan", name_en: "Ramat Gan", name_he: "רמת גן", lat: 32.082, lng: 34.813, avg_rent_1br: 4800, avg_rent_2br: 6500, avg_rent_3br: 8500, avg_rent_4br: 10500, avg_price_sqm: 38000 },
+  { id: "givatayim", name_en: "Givatayim", name_he: "גבעתיים", lat: 32.072, lng: 34.812, avg_rent_1br: 5200, avg_rent_2br: 7000, avg_rent_3br: 9200, avg_rent_4br: 11500, avg_price_sqm: 40000 },
+  { id: "bat-yam", name_en: "Bat Yam", name_he: "בת ים", lat: 32.018, lng: 34.750, avg_rent_1br: 3500, avg_rent_2br: 4800, avg_rent_3br: 6200, avg_rent_4br: 7800, avg_price_sqm: 22000 },
+  { id: "holon", name_en: "Holon", name_he: "חולון", lat: 32.011, lng: 34.776, avg_rent_1br: 3400, avg_rent_2br: 4600, avg_rent_3br: 6000, avg_rent_4br: 7500, avg_price_sqm: 20000 },
+  { id: "herzliya", name_en: "Herzliya", name_he: "הרצליה", lat: 32.162, lng: 34.791, avg_rent_1br: 5800, avg_rent_2br: 8000, avg_rent_3br: 10500, avg_rent_4br: 13500, avg_price_sqm: 45000 },
+  { id: "bnei-brak", name_en: "Bnei Brak", name_he: "בני ברק", lat: 32.083, lng: 34.833, avg_rent_1br: 3500, avg_rent_2br: 5000, avg_rent_3br: 6500, avg_rent_4br: 8500, avg_price_sqm: 25000 },
+  { id: "petah-tikva", name_en: "Petah Tikva", name_he: "פתח תקוה", lat: 32.087, lng: 34.887, avg_rent_1br: 3200, avg_rent_2br: 4500, avg_rent_3br: 6000, avg_rent_4br: 7800, avg_price_sqm: 22000 },
 ];
 
 export const NEIGHBORHOODS: Neighborhood[] = RAW_NEIGHBORHOODS.map(
@@ -165,6 +173,14 @@ const YAD2_NEIGHBORHOOD_URLS: Record<string, string> = {
   "rothschild": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=37",
   "hadar-yosef": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=28",
   "tel-baruch": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=26",
+  // Neighboring cities
+  "ramat-gan": "https://www.yad2.co.il/realestate/rent?city=8600",
+  "givatayim": "https://www.yad2.co.il/realestate/rent?city=6300",
+  "bat-yam": "https://www.yad2.co.il/realestate/rent?city=6200",
+  "holon": "https://www.yad2.co.il/realestate/rent?city=6600",
+  "herzliya": "https://www.yad2.co.il/realestate/rent?city=6400",
+  "bnei-brak": "https://www.yad2.co.il/realestate/rent?city=6100",
+  "petah-tikva": "https://www.yad2.co.il/realestate/rent?city=7900",
 };
 
 export function getYad2SearchUrl(neighborhoodSlug: string, rooms?: number): string {
@@ -309,11 +325,20 @@ function deriveFurniture(idx: number): "full" | "partial" | "none" {
 // ---------------------------------------------------------------------------
 
 const NEW_NHOOD_STREETS: Record<string, string[]> = {
+  // TLV micro-neighborhoods
   "noga": ["רבי נחמן", "רבי מאיר", "יהודה מרגוזה", "שבזי", "אוהב שלום", "פנחס"],
   "lev-yafo": ["יפת", "שבטי ישראל", "רזיאל", "קדם", "בית אשל", "לואי פסטר"],
   "rothschild": ["רוטשילד", "אחד העם", "הרצל", "נחמני", "מונטיפיורי", "לילינבלום"],
   "hadar-yosef": ["דרך נמיר", "שנקין", "שד' רוקח", "דב הוז", "ארלוזורוב"],
   "tel-baruch": ["רחוב ברקן", "האשל", "מדרגות הים", "שד' אפריקה", "הגאולים"],
+  // Neighboring cities
+  "ramat-gan": ["ביאליק", "ארלוזורוב", "ז'בוטינסקי", "הרצל", "כצנלסון", "רוטשילד", "תובל", "אבן גבירול", "אבא הלל"],
+  "givatayim": ["כצנלסון", "וייצמן", "ארלוזורוב", "בורוכוב", "שינקין", "סירקין", "השלום"],
+  "bat-yam": ["הקוממיות", "בלפור", "רוטשילד", "העצמאות", "ירושלים", "הרצל", "בן גוריון"],
+  "holon": ["סוקולוב", "הנשיא", "ביאליק", "שנקר", "ירושלים", "ההגנה", "הרצל"],
+  "herzliya": ["הנשיא", "סוקולוב", "בן גוריון", "הבנים", "ירושלים", "אורט ישראל"],
+  "bnei-brak": ["רבי עקיבא", "ז'בוטינסקי", "הרב קוק", "ירושלים", "חזון איש", "השומר"],
+  "petah-tikva": ["רוטשילד", "הרצל", "סטמפר", "ויצמן", "ז'בוטינסקי", "בילו"],
 };
 
 const MICRO_SOURCES: ListingSource[] = ["yad2", "yad2", "yad2", "homeless", "fbmarket", "komo", "madlan", "onmap"];
