@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { fetchNeighborhood } from "@/lib/api";
 import { formatRent, formatPricePerSqm } from "@/lib/format";
-import { getRawNeighborhood, getCBSRentForRooms, NEIGHBORHOODS } from "@/lib/data";
+import { getRawNeighborhood, getCBSRentForRooms, NEIGHBORHOODS, getYad2SearchUrl, DATA_META } from "@/lib/data";
 import type { NeighborhoodDetail } from "@/lib/types";
 
 function StatBadge({ label, value, sublabel }: { label: string; value: string; sublabel?: string }) {
@@ -14,6 +14,15 @@ function StatBadge({ label, value, sublabel }: { label: string; value: string; s
       <p className="mt-1 text-xl font-bold text-brand-navy">{value}</p>
       {sublabel && <p className="mt-0.5 text-xs text-gray-500">{sublabel}</p>}
     </div>
+  );
+}
+
+function QualityBadge({ label, active }: { label: string; active: boolean }) {
+  if (!active) return null;
+  return (
+    <span className="inline-block rounded bg-brand-teal/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-teal">
+      {label}
+    </span>
   );
 }
 
@@ -107,10 +116,11 @@ export default function NeighborhoodClient({ slug }: { slug: string }) {
   const avgDom = data.listings.length > 0
     ? Math.round(data.listings.reduce((s, l) => s + l.days_on_market, 0) / data.listings.length)
     : null;
+  const yad2Url = getYad2SearchUrl(slug);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      {/* Breadcrumb — clear wayfinding */}
+      {/* Breadcrumb */}
       <nav className="mb-6 text-sm text-gray-400">
         <Link href="/" className="hover:text-brand-navy">Home</Link>
         <span className="mx-2">/</span>
@@ -130,12 +140,22 @@ export default function NeighborhoodClient({ slug }: { slug: string }) {
             {data.listing_count} active listings &middot; {neighborhoodData?.avg_rent_2br ? `${formatRent(neighborhoodData.avg_rent_2br)} avg (2BR)` : ""}
           </p>
         </div>
-        <Link
-          href={`/#check`}
-          className="inline-block rounded-lg bg-brand-teal px-5 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-brand-teal-light"
-        >
-          Check Your Rent in {data.name_en}
-        </Link>
+        <div className="flex gap-2">
+          <a
+            href={yad2Url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block rounded-lg border border-brand-navy px-4 py-2.5 text-center text-sm font-semibold text-brand-navy transition hover:bg-brand-navy hover:text-white"
+          >
+            Browse on Yad2
+          </a>
+          <Link
+            href="/#check"
+            className="inline-block rounded-lg bg-brand-teal px-5 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-brand-teal-light"
+          >
+            Check Your Rent
+          </Link>
+        </div>
       </div>
 
       {/* Key Stats */}
@@ -179,10 +199,20 @@ export default function NeighborhoodClient({ slug }: { slug: string }) {
       {/* Rent by room size */}
       <RentByRoomSize slug={slug} />
 
-      {/* Active Listings */}
+      {/* Active Listings with quality badges and links */}
       {data.listings && data.listings.length > 0 && (
         <>
-          <h2 className="mb-4 text-lg font-bold text-gray-900">Active Listings ({data.listings.length})</h2>
+          <div className="mb-4 flex items-baseline justify-between">
+            <h2 className="text-lg font-bold text-gray-900">Active Listings ({data.listings.length})</h2>
+            <a
+              href={yad2Url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg bg-brand-teal/10 px-3 py-1 text-xs font-medium text-brand-teal hover:bg-brand-teal/20"
+            >
+              See all on Yad2 &rarr;
+            </a>
+          </div>
           <div className="mb-10 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -192,8 +222,10 @@ export default function NeighborhoodClient({ slug }: { slug: string }) {
                     <th className="px-4 py-3">Rooms</th>
                     <th className="px-4 py-3">Sqm</th>
                     <th className="px-4 py-3">Rent</th>
-                    <th className="px-4 py-3">Rent/sqm</th>
+                    <th className="px-4 py-3">Quality</th>
+                    <th className="px-4 py-3">Features</th>
                     <th className="px-4 py-3">Days</th>
+                    <th className="px-4 py-3"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -203,8 +235,31 @@ export default function NeighborhoodClient({ slug }: { slug: string }) {
                       <td className="px-4 py-3 text-gray-600">{listing.rooms}</td>
                       <td className="px-4 py-3 text-gray-600">{listing.sqm}</td>
                       <td className="px-4 py-3 font-medium text-gray-900">{formatRent(listing.monthly_rent)}</td>
-                      <td className="px-4 py-3 text-gray-600">{formatRent(listing.price_per_sqm)}</td>
+                      <td className="px-4 py-3">
+                        <span className={`text-xs font-medium ${listing.quality_score >= 70 ? "text-score-green" : listing.quality_score >= 50 ? "text-score-yellow" : "text-gray-400"}`}>
+                          {listing.quality_score}/100
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                          <QualityBadge label="P" active={listing.has_parking} />
+                          <QualityBadge label="Elev" active={listing.has_elevator} />
+                          <QualityBadge label="Bal" active={listing.has_balcony} />
+                          <QualityBadge label="A/C" active={listing.has_ac} />
+                          <QualityBadge label="Mamad" active={listing.has_mamad} />
+                        </div>
+                      </td>
                       <td className="px-4 py-3 text-gray-500">{listing.days_on_market}</td>
+                      <td className="px-4 py-3">
+                        <a
+                          href={listing.source_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-medium text-brand-teal hover:underline"
+                        >
+                          View &rarr;
+                        </a>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -217,10 +272,18 @@ export default function NeighborhoodClient({ slug }: { slug: string }) {
       {(!data.listings || data.listings.length === 0) && (
         <div className="rounded-2xl border border-gray-100 bg-white py-12 text-center shadow-sm">
           <p className="text-gray-400">No listing data available for this neighborhood yet.</p>
+          <a
+            href={yad2Url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-block rounded-lg bg-brand-teal px-6 py-2 text-sm font-medium text-white hover:bg-brand-teal-light"
+          >
+            Search on Yad2 &rarr;
+          </a>
         </div>
       )}
 
-      {/* CTA — check your rent in this neighborhood */}
+      {/* CTA */}
       <div className="mt-6 rounded-2xl border border-brand-teal/20 bg-brand-teal/5 p-6 text-center">
         <p className="text-lg font-semibold text-brand-navy">
           Renting in {data.name_en}?
@@ -235,6 +298,11 @@ export default function NeighborhoodClient({ slug }: { slug: string }) {
           Check Your Rent
         </Link>
       </div>
+
+      {/* Source attribution */}
+      <p className="mt-6 text-center text-xs text-gray-400">
+        Data: {DATA_META.sources.map((s) => s.name).join(", ")} | Updated {DATA_META.last_updated}
+      </p>
     </div>
   );
 }

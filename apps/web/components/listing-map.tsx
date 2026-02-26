@@ -2,12 +2,21 @@
 
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
 import { formatRent } from "@/lib/format";
-import type { ComparableListing } from "@/lib/types";
 import { useEffect } from "react";
+
+interface MapListing {
+  address: string;
+  rooms: number;
+  sqm: number;
+  monthly_rent: number;
+  price_per_sqm: number;
+  lat: number;
+  lng: number;
+}
 
 interface ListingMapProps {
   center: [number, number];
-  comparables: (ComparableListing & { lat: number; lng: number })[];
+  comparables: MapListing[];
   userRent: number;
   /** Index of the currently hovered listing in the side panel (-1 = none). */
   hoveredIndex?: number;

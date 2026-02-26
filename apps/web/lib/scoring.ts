@@ -32,8 +32,10 @@ import {
   SEASONAL_FAVORABILITY,
   CBS_RENT_STATS,
   getComparableListings,
+  getQualityComparables,
   getNeighborhoodRent,
   getCBSRentForRooms,
+  getYad2SearchUrl,
 } from "./data";
 
 // ---------------------------------------------------------------------------
@@ -341,7 +343,7 @@ function getSignals(neighborhoodSlug: string, rooms: number): SignalsResult {
   const currentMonth = new Date().getMonth() + 1;
   const season = SEASONAL_FAVORABILITY[currentMonth] || "neutral";
 
-  // Comparable listings (up to 10 for display)
+  // Comparable listings (up to 10 for display) with quality data
   const comps = getComparableListings(neighborhoodSlug, rooms, 10);
   const comparableListings: ComparableListing[] = comps.map((c) => ({
     address: c.address,
@@ -349,6 +351,16 @@ function getSignals(neighborhoodSlug: string, rooms: number): SignalsResult {
     sqm: c.sqm,
     monthly_rent: c.monthly_rent,
     price_per_sqm: c.price_per_sqm,
+    source_url: c.source_url,
+    quality_score: c.quality_score,
+    similarity_score: 0,
+    condition: c.condition,
+    has_parking: c.has_parking,
+    has_elevator: c.has_elevator,
+    has_balcony: c.has_balcony,
+    has_ac: c.has_ac,
+    has_mamad: c.has_mamad,
+    floor: c.floor,
   }));
 
   // Build descriptions
