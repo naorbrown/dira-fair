@@ -3,6 +3,8 @@ export interface Neighborhood {
   slug: string;
   name_en: string;
   name_he: string;
+  lat: number;
+  lng: number;
   avg_rent_2br: number | null;
   avg_price_per_sqm: number | null;
   listing_count: number;
@@ -22,6 +24,8 @@ export interface RentalListing {
   source: string;
   posted_date: string;
   floor?: number | null;
+  lat: number;
+  lng: number;
 }
 
 export interface RentCheckRequest {

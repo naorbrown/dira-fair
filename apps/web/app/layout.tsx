@@ -25,13 +25,13 @@ function Navbar() {
             Home
           </Link>
           <Link href="/dashboard" className="rounded-md px-3 py-1.5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-brand-navy">
-            Dashboard
+            Explore Market
           </Link>
           <Link
             href="/#check"
             className="ml-1 rounded-lg bg-brand-teal px-4 py-1.5 text-white transition-colors hover:bg-brand-teal-light sm:ml-2"
           >
-            Check Your Rent
+            Check Rent
           </Link>
         </div>
       </div>

@@ -544,7 +544,8 @@ function generateTips(
     );
   }
 
-  return tips;
+  // Return only the 3 most relevant tips — keep it actionable, not overwhelming
+  return tips.slice(0, 3);
 }
 
 /** Minimal ILS formatter for use inside tip strings. */

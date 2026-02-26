@@ -1,3 +1,4 @@
+import Link from "next/link";
 import RentCheckerForm from "@/components/rent-checker-form";
 import { getCityStats, DATA_META, NEIGHBORHOODS } from "@/lib/data";
 import { formatRent, formatPercent } from "@/lib/format";
@@ -22,12 +23,11 @@ function StatCard({
 
 export default function HomePage() {
   const stats = getCityStats();
-  const cheapest = [...NEIGHBORHOODS]
+  const sorted = [...NEIGHBORHOODS]
     .filter((n) => n.avg_rent_2br)
-    .sort((a, b) => (a.avg_rent_2br ?? 0) - (b.avg_rent_2br ?? 0))[0];
-  const priciest = [...NEIGHBORHOODS]
-    .filter((n) => n.avg_rent_2br)
-    .sort((a, b) => (b.avg_rent_2br ?? 0) - (a.avg_rent_2br ?? 0))[0];
+    .sort((a, b) => (a.avg_rent_2br ?? 0) - (b.avg_rent_2br ?? 0));
+  const cheapest = sorted[0];
+  const priciest = sorted[sorted.length - 1];
 
   return (
     <>
@@ -46,22 +46,23 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-300 sm:text-xl">
-              Compare your rent against {stats.total_listings} active listings
-              across {stats.neighborhoods_covered} neighborhoods. Get data-driven
-              negotiation tips.
+              See comparable apartments on a map, your exact percentile, and how much you could save — instantly.
             </p>
           </div>
           <div id="check" className="mx-auto mt-10 max-w-4xl">
             <div className="rounded-2xl bg-white/10 p-4 shadow-2xl backdrop-blur-md sm:p-6">
               <RentCheckerForm variant="inline" />
             </div>
+            <p className="mt-3 text-center text-sm text-gray-400">
+              5 seconds &middot; No sign-up &middot; {stats.total_listings} listings across {stats.neighborhoods_covered} neighborhoods
+            </p>
           </div>
         </div>
       </section>
 
       {/* Stats */}
       <section className="-mt-10 relative z-10 mx-auto max-w-5xl px-4 sm:px-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <StatCard
             value={formatRent(stats.avg_rent_2br)}
             label="Avg Rent (2BR)"
@@ -85,50 +86,30 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
-        <h2 className="mb-12 text-center text-2xl font-bold text-brand-navy sm:text-3xl">
-          How It Works
-        </h2>
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-          {[
-            { step: "1", title: "Enter Your Details", description: "Tell us your neighborhood, apartment size, and what you\u2019re paying." },
-            { step: "2", title: "Get Your Score", description: "We compare your rent against real market data and show where you stand." },
-            { step: "3", title: "Negotiate with Data", description: "Use price distributions, market signals, and savings estimates to negotiate." },
-          ].map((item) => (
-            <div key={item.step} className="text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-teal/10 text-lg font-bold text-brand-teal">
-                {item.step}
-              </div>
-              <h3 className="mt-4 text-lg font-semibold text-gray-900">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-600">{item.description}</p>
-            </div>
+      {/* Quick neighborhood preview + explore CTA */}
+      <section className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
+        <div className="mb-6 flex items-baseline justify-between">
+          <h2 className="text-xl font-bold text-brand-navy">Rent by Neighborhood</h2>
+          <Link href="/dashboard" className="text-sm font-medium text-brand-teal hover:underline">
+            View all {stats.neighborhoods_covered} &rarr;
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[cheapest, priciest, sorted[Math.floor(sorted.length / 3)], sorted[Math.floor(sorted.length * 2 / 3)]].filter(Boolean).map((n) => (
+            <Link
+              key={n!.slug}
+              href={`/neighborhood/${n!.slug}`}
+              className="group rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:border-brand-teal/30 hover:shadow-md"
+            >
+              <p className="text-sm font-semibold text-gray-900 group-hover:text-brand-teal">{n!.name_en}</p>
+              <p className="mt-1 text-lg font-bold text-brand-navy">{n!.avg_rent_2br ? formatRent(n!.avg_rent_2br) : "N/A"}</p>
+              <p className="text-xs text-gray-500">avg 2BR &middot; {n!.listing_count} listings</p>
+            </Link>
           ))}
         </div>
-      </section>
-
-      {/* Rent landscape */}
-      <section className="border-t border-gray-100 bg-gray-50">
-        <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-          <h2 className="mb-8 text-center text-2xl font-bold text-brand-navy sm:text-3xl">
-            Tel Aviv Rent Landscape
-          </h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div className="rounded-2xl bg-white p-6 shadow-sm">
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Most Affordable (2BR)</p>
-              <p className="mt-2 text-2xl font-bold text-brand-navy">{cheapest?.name_en}</p>
-              <p className="mt-1 text-lg text-gray-600">{cheapest?.avg_rent_2br ? formatRent(cheapest.avg_rent_2br) : "N/A"} avg</p>
-            </div>
-            <div className="rounded-2xl bg-white p-6 shadow-sm">
-              <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Most Premium (2BR)</p>
-              <p className="mt-2 text-2xl font-bold text-brand-navy">{priciest?.name_en}</p>
-              <p className="mt-1 text-lg text-gray-600">{priciest?.avg_rent_2br ? formatRent(priciest.avg_rent_2br) : "N/A"} avg</p>
-            </div>
-          </div>
-          <p className="mt-6 text-center text-xs text-gray-400">
-            Data from {DATA_META.sources.map((s) => s.name).join(", ")} | Last updated {DATA_META.last_updated}
-          </p>
-        </div>
+        <p className="mt-6 text-center text-xs text-gray-400">
+          Data: {DATA_META.sources.map((s) => s.name).join(", ")} | Updated {DATA_META.last_updated}
+        </p>
       </section>
     </>
   );

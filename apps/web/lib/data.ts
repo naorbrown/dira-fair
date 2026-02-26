@@ -59,6 +59,8 @@ export const NEIGHBORHOODS: Neighborhood[] = RAW_NEIGHBORHOODS.map(
     slug: n.id,
     name_en: n.name_en,
     name_he: n.name_he,
+    lat: n.lat,
+    lng: n.lng,
     avg_rent_2br: n.avg_rent_2br,
     avg_price_per_sqm: null,
     listing_count: 0,
@@ -264,19 +266,32 @@ const RAW_LISTINGS: ListingSeed[] = [
   { id: "yad2-129", address: "דרך השלום 70", neighborhood_id: "nahalat-yitzhak", rooms: 3, sqm: 70, price: 9800, days_on_market: 7, floor: 4 },
 ];
 
-export const LISTINGS: RentalListing[] = RAW_LISTINGS.map((l, idx) => ({
-  id: idx + 1,
-  address: l.address,
-  neighborhood: l.neighborhood_id,
-  rooms: l.rooms,
-  sqm: l.sqm,
-  monthly_rent: l.price,
-  price_per_sqm: Math.round((l.price / l.sqm) * 10) / 10,
-  days_on_market: l.days_on_market,
-  source: "yad2",
-  posted_date: new Date(Date.now() - l.days_on_market * 24 * 60 * 60 * 1000).toISOString(),
-  floor: l.floor ?? null,
-}));
+/** Deterministic pseudo-random offset from listing index (±~200m). */
+function listingOffset(idx: number, axis: 0 | 1): number {
+  // Simple hash-like spread based on index
+  const seed = (idx * 2654435761) >>> 0; // Knuth multiplicative hash
+  const val = axis === 0 ? (seed & 0xffff) : (seed >>> 16);
+  return ((val / 0xffff) - 0.5) * 0.004; // ±0.002 degrees ≈ ±200m
+}
+
+export const LISTINGS: RentalListing[] = RAW_LISTINGS.map((l, idx) => {
+  const nhood = RAW_NEIGHBORHOODS.find((n) => n.id === l.neighborhood_id);
+  return {
+    id: idx + 1,
+    address: l.address,
+    neighborhood: l.neighborhood_id,
+    rooms: l.rooms,
+    sqm: l.sqm,
+    monthly_rent: l.price,
+    price_per_sqm: Math.round((l.price / l.sqm) * 10) / 10,
+    days_on_market: l.days_on_market,
+    source: "yad2",
+    posted_date: new Date(Date.now() - l.days_on_market * 24 * 60 * 60 * 1000).toISOString(),
+    floor: l.floor ?? null,
+    lat: (nhood?.lat ?? 32.07) + listingOffset(idx, 0),
+    lng: (nhood?.lng ?? 34.78) + listingOffset(idx, 1),
+  };
+});
 
 // Compute per-neighborhood stats from actual listings
 const listingsBySlug = new Map<string, typeof RAW_LISTINGS>();
