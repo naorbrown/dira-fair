@@ -3,7 +3,7 @@
 import { MapContainer, TileLayer, CircleMarker, Tooltip, ZoomControl, useMap, useMapEvents } from "react-leaflet";
 import { formatRent } from "@/lib/format";
 import { getNeighborhoodName } from "@/lib/data";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import type { RentalListing } from "@/lib/types";
 
 // ── Price color scale ──
@@ -107,7 +107,94 @@ export default function ExploreMap({
   onSelect,
   onBoundsChange,
 }: ExploreMapProps) {
-  const visibleListings = listings.slice(0, 600);
+  const visibleListings = useMemo(() => listings.slice(0, 800), [listings]);
+
+  // Dynamically import MarkerClusterGroup to avoid SSR window reference
+  const [ClusterGroup, setClusterGroup] = useState<any>(null);
+  useEffect(() => {
+    import("react-leaflet-cluster").then((mod) => setClusterGroup(() => mod.default));
+  }, []);
+
+  const clusterIcon = useMemo(() => {
+    if (typeof window === "undefined") return undefined;
+    const L = require("leaflet");
+    return (cluster: any) => {
+      const count = cluster.getChildCount();
+      const markers = cluster.getAllChildMarkers();
+      const avgPrice = markers.reduce((sum: number, m: any) => sum + (m.options.data?.monthly_rent ?? 0), 0) / count;
+      const color = priceColor(avgPrice);
+      const size = count > 50 ? 44 : count > 20 ? 38 : count > 10 ? 32 : 28;
+      return L.divIcon({
+        html: `<div style="
+          background: ${color};
+          color: #fff;
+          width: ${size}px;
+          height: ${size}px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: ${size > 36 ? 13 : 11}px;
+          font-weight: 700;
+          border: 2.5px solid rgba(255,255,255,0.9);
+          box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+        ">${count}</div>`,
+        className: "custom-cluster-icon",
+        iconSize: L.point(size, size),
+      });
+    };
+  }, []);
+
+  const markers = visibleListings.map((listing) => {
+    const isHovered = listing.id === hoveredId;
+    const isSelected = listing.id === selectedId;
+    const color = priceColor(listing.monthly_rent);
+    const active = isHovered || isSelected;
+
+    return (
+      <CircleMarker
+        key={listing.id}
+        center={[listing.lat, listing.lng]}
+        radius={active ? 9 : 5}
+        pathOptions={{
+          color: active ? "#1e293b" : "rgba(255,255,255,0.85)",
+          fillColor: color,
+          fillOpacity: active ? 1 : 0.85,
+          weight: active ? 2.5 : 1,
+        }}
+        // @ts-ignore - attach data for cluster price averaging
+        data={listing}
+        eventHandlers={{
+          click: () => onSelect(listing.id === selectedId ? null : listing.id),
+          mouseover: () => onHover(listing.id),
+          mouseout: () => onHover(null),
+        }}
+      >
+        <Tooltip direction="top" offset={[0, -8]} opacity={0.95}>
+          <div className="min-w-[180px] p-0.5">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm font-bold">{formatRent(listing.monthly_rent)}/mo</span>
+              <span className={`rounded px-1 py-0.5 text-[10px] font-medium ${sourceBadgeColor(listing.source)}`}>
+                {listing.source}
+              </span>
+            </div>
+            <p className="mt-0.5 text-xs text-gray-600">{listing.address}</p>
+            <p className="text-xs text-gray-500">
+              {getNeighborhoodName(listing.neighborhood)} &middot; {listing.rooms}r &middot; {listing.sqm}m&sup2;
+              {listing.floor ? ` &middot; Floor ${listing.floor}` : ""}
+            </p>
+            <div className="mt-1 flex flex-wrap gap-1">
+              {listing.has_elevator && <span className="rounded bg-gray-100 px-1 text-[9px]">Elevator</span>}
+              {listing.has_parking && <span className="rounded bg-gray-100 px-1 text-[9px]">Parking</span>}
+              {listing.has_balcony && <span className="rounded bg-gray-100 px-1 text-[9px]">Balcony</span>}
+              {listing.has_ac && <span className="rounded bg-gray-100 px-1 text-[9px]">A/C</span>}
+              {listing.has_mamad && <span className="rounded bg-gray-100 px-1 text-[9px]">Mamad</span>}
+            </div>
+          </div>
+        </Tooltip>
+      </CircleMarker>
+    );
+  });
 
   return (
     <div role="region" aria-label="Interactive map of rental listings" className="h-full w-full">
@@ -131,55 +218,19 @@ export default function ExploreMap({
           onBoundsChange={onBoundsChange}
         />
 
-        {visibleListings.map((listing) => {
-          const isHovered = listing.id === hoveredId;
-          const isSelected = listing.id === selectedId;
-          const color = priceColor(listing.monthly_rent);
-          const active = isHovered || isSelected;
-
-          return (
-            <CircleMarker
-              key={listing.id}
-              center={[listing.lat, listing.lng]}
-              radius={active ? 10 : 6}
-              pathOptions={{
-                color: active ? "#1e293b" : "#fff",
-                fillColor: color,
-                fillOpacity: active ? 1 : 0.8,
-                weight: active ? 2.5 : 1.5,
-              }}
-              eventHandlers={{
-                click: () => onSelect(listing.id === selectedId ? null : listing.id),
-                mouseover: () => onHover(listing.id),
-                mouseout: () => onHover(null),
-              }}
-            >
-              <Tooltip direction="top" offset={[0, -10]} opacity={0.95}>
-                <div className="min-w-[170px] p-0.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-bold">{formatRent(listing.monthly_rent)}/mo</span>
-                    <span className={`rounded px-1 py-0.5 text-[10px] font-medium ${sourceBadgeColor(listing.source)}`}>
-                      {listing.source}
-                    </span>
-                  </div>
-                  <p className="mt-0.5 text-xs text-gray-600">{listing.address}</p>
-                  <p className="text-xs text-gray-500">
-                    {getNeighborhoodName(listing.neighborhood)} &middot; {listing.rooms}r &middot; {listing.sqm}m&sup2;
-                    {listing.floor ? ` &middot; Floor ${listing.floor}` : ""}
-                  </p>
-                  <div className="mt-1 flex gap-1">
-                    {listing.has_elevator && <span className="rounded bg-gray-100 px-1 text-[9px]">Elevator</span>}
-                    {listing.has_parking && <span className="rounded bg-gray-100 px-1 text-[9px]">Parking</span>}
-                    {listing.has_balcony && <span className="rounded bg-gray-100 px-1 text-[9px]">Balcony</span>}
-                    {listing.has_ac && <span className="rounded bg-gray-100 px-1 text-[9px]">A/C</span>}
-                    {listing.has_mamad && <span className="rounded bg-gray-100 px-1 text-[9px]">Mamad</span>}
-                  </div>
-                  <p className="mt-1 text-[10px] text-brand-teal">Click to select</p>
-                </div>
-              </Tooltip>
-            </CircleMarker>
-          );
-        })}
+        {ClusterGroup ? (
+          <ClusterGroup
+            chunkedLoading
+            maxClusterRadius={40}
+            spiderfyOnMaxZoom={true}
+            showCoverageOnHover={false}
+            iconCreateFunction={clusterIcon}
+          >
+            {markers}
+          </ClusterGroup>
+        ) : (
+          markers
+        )}
       </MapContainer>
     </div>
   );

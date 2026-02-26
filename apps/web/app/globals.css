@@ -54,3 +54,19 @@ html {
   background: #d1d5db;
   border-radius: 3px;
 }
+
+/* Marker cluster overrides */
+.custom-cluster-icon {
+  background: transparent !important;
+  border: none !important;
+}
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  background: transparent !important;
+}
+.marker-cluster-small div,
+.marker-cluster-medium div,
+.marker-cluster-large div {
+  background: transparent !important;
+}
