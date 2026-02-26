@@ -104,8 +104,8 @@ A **FastAPI backend** exists in `apps/api/` for data collection (scraping Yad2, 
 | Source | What | Access | Link |
 |--------|------|--------|------|
 | **Yad2** | 129 active rental listings across 19 neighborhoods | Scraping | [yad2.co.il](https://www.yad2.co.il/realestate/rent?city=5000) |
-| **CBS** | Official avg rents by room count, new vs renewal tenant delta | Free API | [cbs.gov.il](https://www.cbs.gov.il/en/subjects/Pages/Rent.aspx) |
-| **nadlan.gov.il** | Sale transactions (price/sqm, deal dates) | Public | [nadlan.gov.il](https://www.nadlan.gov.il/) |
+| **CBS** | Official avg rents by room count, new vs renewal tenant delta | Free API | [cbs.gov.il](https://www.cbs.gov.il/en/subjects/Pages/Average-Monthly-Prices-of-Rent.aspx) |
+| **nadlan.gov.il** | Sale transactions (price/sqm, deal dates) | Public | [gov.il](https://www.gov.il/en/service/real_estate_information) |
 
 ### Current Coverage
 
