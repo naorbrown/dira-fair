@@ -25,8 +25,11 @@ function Navbar() {
           <Link href="/" className="rounded-md px-3 py-1.5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-brand-navy">
             Home
           </Link>
-          <Link href="/dashboard" className="rounded-md px-3 py-1.5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-brand-navy">
-            Explore Market
+          <Link href="/explore" className="rounded-md px-3 py-1.5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-brand-navy">
+            Browse Listings
+          </Link>
+          <Link href="/dashboard" className="hidden rounded-md px-3 py-1.5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-brand-navy sm:inline-block">
+            Market Stats
           </Link>
           <Link
             href="/#check"
