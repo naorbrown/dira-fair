@@ -6,7 +6,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { checkRent } from "@/lib/api";
 import { formatRent } from "@/lib/format";
-import { NEIGHBORHOODS, getExpandedComparables, getYad2SearchUrl, SOURCE_LABELS, getNeighborhoodName } from "@/lib/data";
+import { NEIGHBORHOODS, getExpandedComparables, getNearbyNeighborhoods, getYad2SearchUrl, SOURCE_LABELS, getNeighborhoodName } from "@/lib/data";
 import RentScoreCard from "@/components/rent-score-card";
 import PriceDistribution from "@/components/price-distribution";
 import type { RentCheckResponse, RentalListing } from "@/lib/types";
@@ -171,14 +171,13 @@ function CheckContent() {
     })
       .then((data) => {
         setResult(data);
-        // Get expanded comparables from nearby neighborhoods too
+        // Get comparables from this + adjacent neighborhoods (1.5km radius)
         const fullComps = getExpandedComparables(
           neighborhoodSlug,
           parseFloat(rooms),
           parseInt(sqm, 10),
           null,
-          25,
-          5
+          20
         );
         setCompsWithCoords(fullComps);
         setLoading(false);
@@ -233,8 +232,12 @@ function CheckContent() {
 
   const yad2SearchUrl = getYad2SearchUrl(neighborhoodSlug, parseFloat(rooms));
 
-  // Count how many nearby neighborhoods are represented
-  const nearbyAreaCount = new Set(compsWithCoords.map((c) => c.neighborhood)).size;
+  // Which nearby neighborhoods are represented
+  const nearbyNhoodSlugs = Array.from(new Set(compsWithCoords.map((c) => c.neighborhood)));
+  const nearbyNhoodNames = nearbyNhoodSlugs
+    .filter((s) => s !== neighborhoodSlug)
+    .map(getNeighborhoodName);
+  const nearbyAreaCount = nearbyNhoodSlugs.length;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
@@ -277,7 +280,7 @@ function CheckContent() {
             <a href={yad2SearchUrl} target="_blank" rel="noopener noreferrer" className="text-brand-teal underline hover:text-brand-teal-light">
               {cheaperCount} cheaper apartment{cheaperCount !== 1 ? "s" : ""}
             </a>{" "}
-            found across {nearbyAreaCount} area{nearbyAreaCount !== 1 ? "s" : ""}
+            nearby in {neighborhoodName}{nearbyNhoodNames.length > 0 ? ` + ${nearbyNhoodNames.join(", ")}` : ""}
           </p>
         )}
         {score === "below_market" && (
@@ -308,7 +311,7 @@ function CheckContent() {
             </h2>
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-500">
-                {compsWithCoords.length} listings across {nearbyAreaCount} area{nearbyAreaCount !== 1 ? "s" : ""}
+                {compsWithCoords.length} in {neighborhoodName}{nearbyNhoodNames.length > 0 ? ` + ${nearbyNhoodNames.length} nearby` : ""}
               </span>
               <a
                 href={yad2SearchUrl}
