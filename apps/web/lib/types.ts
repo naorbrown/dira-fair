@@ -122,6 +122,72 @@ export interface RentCheckResponse {
   } | null;
 }
 
+// ---------------------------------------------------------------------------
+// Closed market data — what tenants actually pay (not just asking prices)
+// ---------------------------------------------------------------------------
+
+export interface ClosedMarketData {
+  neighborhood: string;
+  rooms: number;
+  /** Average asking price on open market (listed apartments) */
+  avg_asking_rent: number;
+  /** Estimated actual rent being paid (CBS renewal + survey data) */
+  avg_actual_rent: number;
+  /** Discount from asking to actual (%) */
+  asking_vs_actual_gap: number;
+  /** Average renewal rent (existing tenants re-signing) */
+  avg_renewal_rent: number;
+  /** New tenant rent (CBS data) */
+  avg_new_tenant_rent: number;
+  /** Estimated total tenants (households) in neighborhood */
+  estimated_households: number;
+  /** % of tenants who renewed last year */
+  renewal_rate: number;
+  /** Data confidence */
+  confidence: "high" | "medium" | "low";
+}
+
+// ---------------------------------------------------------------------------
+// Decision factors — things that influence stay-or-go decisions
+// ---------------------------------------------------------------------------
+
+export interface NeighborhoodDecisionFactors {
+  neighborhood: string;
+  /** Arnona (municipal tax) monthly estimate for 70sqm */
+  arnona_monthly_70sqm: number;
+  /** Average monthly utilities (electric + water + gas + vaad bayit) */
+  avg_utilities_monthly: number;
+  /** Walkability score 0-100 */
+  walkability: number;
+  /** Transit access score 0-100 (bus/train/LRT proximity) */
+  transit_score: number;
+  /** Safety perception score 0-100 */
+  safety_score: number;
+  /** Green space access 0-100 */
+  green_space: number;
+  /** Nightlife & dining 0-100 */
+  nightlife_dining: number;
+  /** Family friendliness 0-100 */
+  family_score: number;
+  /** Average commute to central TLV (minutes) */
+  avg_commute_minutes: number;
+  /** Estimated moving cost (movers + deposits + agent fee) */
+  moving_cost_estimate: number;
+  /** Landlord vacancy cost per month (what they lose if empty) */
+  vacancy_cost_monthly: number;
+  /** Key neighborhood characteristics */
+  character: string;
+}
+
+export interface StayGoAnalysis {
+  monthly_savings_needed: number;
+  annual_threshold: number;
+  moving_cost: number;
+  breakeven_months: number;
+  recommendation: "stay" | "negotiate" | "consider_moving";
+  reasoning: string;
+}
+
 export interface NeighborhoodDetail extends Neighborhood {
   listings: RentalListing[];
   recent_transactions: RentalListing[];
