@@ -1,3 +1,4 @@
+import Link from "next/link";
 import RentCheckerForm from "@/components/rent-checker-form";
 import { getCityStats, DATA_META, NEIGHBORHOODS } from "@/lib/data";
 import { formatRent, formatPercent } from "@/lib/format";
@@ -46,15 +47,16 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-300 sm:text-xl">
-              Compare your rent against {stats.total_listings} active listings
-              across {stats.neighborhoods_covered} neighborhoods. Get data-driven
-              negotiation tips.
+              Enter your apartment details below and get an instant analysis — your percentile rank, savings potential, and negotiation strategies.
             </p>
           </div>
           <div id="check" className="mx-auto mt-10 max-w-4xl">
             <div className="rounded-2xl bg-white/10 p-4 shadow-2xl backdrop-blur-md sm:p-6">
               <RentCheckerForm variant="inline" />
             </div>
+            <p className="mt-3 text-center text-sm text-gray-400">
+              Takes 5 seconds &middot; No sign-up required &middot; Based on {stats.total_listings} active listings
+            </p>
           </div>
         </div>
       </section>
@@ -85,44 +87,97 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* How it works */}
+      {/* What You'll Get — concrete preview of results */}
       <section className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
-        <h2 className="mb-12 text-center text-2xl font-bold text-brand-navy sm:text-3xl">
-          How It Works
+        <h2 className="mb-3 text-center text-2xl font-bold text-brand-navy sm:text-3xl">
+          What You&apos;ll Get
         </h2>
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
-          {[
-            { step: "1", title: "Enter Your Details", description: "Tell us your neighborhood, apartment size, and what you\u2019re paying." },
-            { step: "2", title: "Get Your Score", description: "We compare your rent against real market data and show where you stand." },
-            { step: "3", title: "Negotiate with Data", description: "Use price distributions, market signals, and savings estimates to negotiate." },
-          ].map((item) => (
-            <div key={item.step} className="text-center">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand-teal/10 text-lg font-bold text-brand-teal">
-                {item.step}
-              </div>
-              <h3 className="mt-4 text-lg font-semibold text-gray-900">{item.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-gray-600">{item.description}</p>
+        <p className="mx-auto mb-12 max-w-xl text-center text-sm text-gray-500">
+          In seconds, you&apos;ll see exactly where your rent stands and what to do about it.
+        </p>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-navy/10">
+              <span className="text-lg font-bold text-brand-navy">1</span>
             </div>
-          ))}
+            <h3 className="text-base font-semibold text-gray-900">Your Score</h3>
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              See your percentile rank — are you paying more or less than other tenants in your neighborhood?
+            </p>
+            <div className="mt-4 flex gap-1">
+              <span className="rounded-full bg-score-green-bg px-2.5 py-0.5 text-xs font-medium text-score-green">Below Market</span>
+              <span className="rounded-full bg-score-yellow-bg px-2.5 py-0.5 text-xs font-medium text-score-yellow">At Market</span>
+              <span className="rounded-full bg-score-red-bg px-2.5 py-0.5 text-xs font-medium text-score-red">Above</span>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-navy/10">
+              <span className="text-lg font-bold text-brand-navy">2</span>
+            </div>
+            <h3 className="text-base font-semibold text-gray-900">The Evidence</h3>
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              Price distribution charts, comparable listings, market signals, and neighborhood context — all the data you need.
+            </p>
+            <div className="mt-4 flex gap-1">
+              <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Distribution</span>
+              <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Comps</span>
+              <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Trends</span>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-navy/10">
+              <span className="text-lg font-bold text-brand-navy">3</span>
+            </div>
+            <h3 className="text-base font-semibold text-gray-900">Your Action Plan</h3>
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">
+              Specific negotiation strategies, savings targets, and timing advice tailored to your situation.
+            </p>
+            <div className="mt-4 flex gap-1">
+              <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Tips</span>
+              <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Savings</span>
+              <span className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">Timing</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Rent landscape */}
+      {/* Or explore first */}
       <section className="border-t border-gray-100 bg-gray-50">
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
-          <h2 className="mb-8 text-center text-2xl font-bold text-brand-navy sm:text-3xl">
-            Tel Aviv Rent Landscape
-          </h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
+            <div>
+              <h2 className="text-xl font-bold text-brand-navy sm:text-2xl">
+                Not ready to check yet?
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">
+                Explore the market first — compare neighborhoods, view trends, and see where prices are heading.
+              </p>
+            </div>
+            <Link
+              href="/dashboard"
+              className="shrink-0 rounded-lg border border-brand-navy px-6 py-2.5 text-sm font-semibold text-brand-navy transition hover:bg-brand-navy hover:text-white"
+            >
+              Explore the Market
+            </Link>
+          </div>
+
+          {/* Quick neighborhood preview */}
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="rounded-2xl bg-white p-6 shadow-sm">
               <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Most Affordable (2BR)</p>
-              <p className="mt-2 text-2xl font-bold text-brand-navy">{cheapest?.name_en}</p>
-              <p className="mt-1 text-lg text-gray-600">{cheapest?.avg_rent_2br ? formatRent(cheapest.avg_rent_2br) : "N/A"} avg</p>
+              <p className="mt-2 text-xl font-bold text-brand-navy">{cheapest?.name_en}</p>
+              <p className="mt-1 text-gray-600">{cheapest?.avg_rent_2br ? formatRent(cheapest.avg_rent_2br) : "N/A"} avg</p>
+              <Link href={`/neighborhood/${cheapest?.slug}`} className="mt-2 inline-block text-xs font-medium text-brand-teal hover:underline">
+                View details &rarr;
+              </Link>
             </div>
             <div className="rounded-2xl bg-white p-6 shadow-sm">
               <p className="text-xs font-medium uppercase tracking-wider text-gray-400">Most Premium (2BR)</p>
-              <p className="mt-2 text-2xl font-bold text-brand-navy">{priciest?.name_en}</p>
-              <p className="mt-1 text-lg text-gray-600">{priciest?.avg_rent_2br ? formatRent(priciest.avg_rent_2br) : "N/A"} avg</p>
+              <p className="mt-2 text-xl font-bold text-brand-navy">{priciest?.name_en}</p>
+              <p className="mt-1 text-gray-600">{priciest?.avg_rent_2br ? formatRent(priciest.avg_rent_2br) : "N/A"} avg</p>
+              <Link href={`/neighborhood/${priciest?.slug}`} className="mt-2 inline-block text-xs font-medium text-brand-teal hover:underline">
+                View details &rarr;
+              </Link>
             </div>
           </div>
           <p className="mt-6 text-center text-xs text-gray-400">

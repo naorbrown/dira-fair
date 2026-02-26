@@ -107,10 +107,20 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+      {/* Breadcrumb */}
+      <nav className="mb-6 text-sm text-gray-400">
+        <Link href="/" className="hover:text-brand-navy">Home</Link>
+        <span className="mx-2">/</span>
+        <span className="text-gray-700">Explore Market</span>
+      </nav>
+
+      {/* Page header — explains purpose */}
       <div className="mb-8 flex items-end justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-brand-navy sm:text-3xl">Tel Aviv Rental Market</h1>
-          <p className="mt-1 text-sm text-gray-500">Data from {DATA_META.sources.map((s) => s.name).join(", ")} | Updated {DATA_META.last_updated}</p>
+          <h1 className="text-2xl font-bold text-brand-navy sm:text-3xl">Explore the Market</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Browse neighborhoods, compare rents, and spot trends — then check your own rent when you&apos;re ready.
+          </p>
         </div>
         <Link href="/#check" className="hidden rounded-lg bg-brand-teal px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-teal-light sm:block">
           Check Your Rent
@@ -144,7 +154,7 @@ export default function DashboardPage() {
       <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
         <div className="border-b border-gray-100 px-6 py-4">
           <h2 className="text-lg font-bold text-gray-900">All Neighborhoods</h2>
-          <p className="text-sm text-gray-500">Click headers to sort. Click a neighborhood for details.</p>
+          <p className="text-sm text-gray-500">Click a neighborhood to see listings and details. Click headers to sort.</p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -163,6 +173,7 @@ export default function DashboardPage() {
                   Listings<SortArrow column="listing_count" />
                 </th>
                 <th className="px-6 py-3">Price Range</th>
+                <th className="px-6 py-3"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
@@ -177,7 +188,15 @@ export default function DashboardPage() {
                   <td className="px-6 py-3 text-gray-700">{n.avg_price_per_sqm ? formatPricePerSqm(n.avg_price_per_sqm) : "-"}</td>
                   <td className="px-6 py-3 text-gray-500">{n.listing_count}</td>
                   <td className="px-6 py-3 text-gray-500">
-                    {n.price_range ? `${formatRent(n.price_range.min)} - ${formatRent(n.price_range.max)}` : "-"}
+                    {n.price_range ? `${formatRent(n.price_range.min)} – ${formatRent(n.price_range.max)}` : "-"}
+                  </td>
+                  <td className="px-6 py-3">
+                    <Link
+                      href={`/neighborhood/${n.slug}`}
+                      className="text-xs font-medium text-brand-teal hover:underline"
+                    >
+                      View &rarr;
+                    </Link>
                   </td>
                 </tr>
               ))}
@@ -185,6 +204,24 @@ export default function DashboardPage() {
           </table>
         </div>
       </div>
+
+      {/* CTA to check rent */}
+      <div className="mt-10 rounded-2xl border border-brand-teal/20 bg-brand-teal/5 p-6 text-center">
+        <p className="text-lg font-semibold text-brand-navy">Ready to check your own rent?</p>
+        <p className="mt-1 text-sm text-gray-500">
+          Now that you&apos;ve explored the market, see exactly where your apartment stands.
+        </p>
+        <Link
+          href="/#check"
+          className="mt-4 inline-block rounded-lg bg-brand-teal px-8 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-brand-teal-light hover:shadow-lg"
+        >
+          Check Your Rent
+        </Link>
+      </div>
+
+      <p className="mt-6 text-center text-xs text-gray-400">
+        Data from {DATA_META.sources.map((s) => s.name).join(", ")} | Updated {DATA_META.last_updated}
+      </p>
     </div>
   );
 }

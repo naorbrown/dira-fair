@@ -96,7 +96,7 @@ export default function NeighborhoodClient({ slug }: { slug: string }) {
           <p className="text-lg font-semibold text-red-700">Neighborhood not found</p>
           <p className="mt-2 text-sm text-red-600">{error || "We couldn\u2019t find this neighborhood."}</p>
           <Link href="/dashboard" className="mt-4 inline-block rounded-lg bg-brand-teal px-6 py-2 text-sm font-medium text-white hover:bg-brand-teal-light">
-            Back to Dashboard
+            Back to Market Explorer
           </Link>
         </div>
       </div>
@@ -110,11 +110,13 @@ export default function NeighborhoodClient({ slug }: { slug: string }) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      {/* Breadcrumb */}
-      <nav className="mb-6 text-sm text-gray-500">
-        <Link href="/dashboard" className="hover:text-brand-navy">Dashboard</Link>
+      {/* Breadcrumb — clear wayfinding */}
+      <nav className="mb-6 text-sm text-gray-400">
+        <Link href="/" className="hover:text-brand-navy">Home</Link>
         <span className="mx-2">/</span>
-        <span className="text-gray-900">{data.name_en}</span>
+        <Link href="/dashboard" className="hover:text-brand-navy">Explore Market</Link>
+        <span className="mx-2">/</span>
+        <span className="text-gray-700">{data.name_en}</span>
       </nav>
 
       {/* Header */}
@@ -124,12 +126,15 @@ export default function NeighborhoodClient({ slug }: { slug: string }) {
             {data.name_en}
             <span className="ml-3 text-lg font-normal text-gray-400">{data.name_he}</span>
           </h1>
+          <p className="mt-1 text-sm text-gray-500">
+            {data.listing_count} active listings &middot; {neighborhoodData?.avg_rent_2br ? `${formatRent(neighborhoodData.avg_rent_2br)} avg (2BR)` : ""}
+          </p>
         </div>
         <Link
           href={`/#check`}
-          className="inline-block rounded-lg bg-brand-teal px-4 py-2 text-center text-sm font-semibold text-white transition hover:bg-brand-teal-light"
+          className="inline-block rounded-lg bg-brand-teal px-5 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-brand-teal-light"
         >
-          Check Rent Here
+          Check Your Rent in {data.name_en}
         </Link>
       </div>
 
@@ -214,6 +219,22 @@ export default function NeighborhoodClient({ slug }: { slug: string }) {
           <p className="text-gray-400">No listing data available for this neighborhood yet.</p>
         </div>
       )}
+
+      {/* CTA — check your rent in this neighborhood */}
+      <div className="mt-6 rounded-2xl border border-brand-teal/20 bg-brand-teal/5 p-6 text-center">
+        <p className="text-lg font-semibold text-brand-navy">
+          Renting in {data.name_en}?
+        </p>
+        <p className="mt-1 text-sm text-gray-500">
+          Find out if you&apos;re paying a fair price compared to these {data.listing_count} listings.
+        </p>
+        <Link
+          href="/#check"
+          className="mt-4 inline-block rounded-lg bg-brand-teal px-8 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-brand-teal-light hover:shadow-lg"
+        >
+          Check Your Rent
+        </Link>
+      </div>
     </div>
   );
 }
