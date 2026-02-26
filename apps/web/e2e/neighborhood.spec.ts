@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Neighborhood detail pages', () => {
   test('Florentin page shows neighborhood name and listings', async ({ page }) => {
-    await page.goto('/dira-fair/neighborhood/florentin');
+    await page.goto('/dira-fair/neighborhood/florentin/');
 
     // Wait for data to load
     await page.waitForSelector('h1', { timeout: 10000 });
@@ -19,7 +19,7 @@ test.describe('Neighborhood detail pages', () => {
   });
 
   test('Neve Tzedek page shows neighborhood name', async ({ page }) => {
-    await page.goto('/dira-fair/neighborhood/neve-tzedek');
+    await page.goto('/dira-fair/neighborhood/neve-tzedek/');
 
     await page.waitForSelector('h1', { timeout: 10000 });
 
@@ -28,7 +28,7 @@ test.describe('Neighborhood detail pages', () => {
   });
 
   test('listings have View links to Yad2', async ({ page }) => {
-    await page.goto('/dira-fair/neighborhood/florentin');
+    await page.goto('/dira-fair/neighborhood/florentin/');
 
     await page.waitForSelector('table', { timeout: 10000 });
 
@@ -39,7 +39,7 @@ test.describe('Neighborhood detail pages', () => {
   });
 
   test('listings show quality scores', async ({ page }) => {
-    await page.goto('/dira-fair/neighborhood/florentin');
+    await page.goto('/dira-fair/neighborhood/florentin/');
 
     await page.waitForSelector('table', { timeout: 10000 });
 
@@ -50,7 +50,7 @@ test.describe('Neighborhood detail pages', () => {
   });
 
   test('Browse on Yad2 button is visible', async ({ page }) => {
-    await page.goto('/dira-fair/neighborhood/florentin');
+    await page.goto('/dira-fair/neighborhood/florentin/');
 
     await page.waitForSelector('h1', { timeout: 10000 });
 
@@ -59,7 +59,7 @@ test.describe('Neighborhood detail pages', () => {
   });
 
   test('listings show quality feature badges', async ({ page }) => {
-    await page.goto('/dira-fair/neighborhood/old-north');
+    await page.goto('/dira-fair/neighborhood/old-north/');
 
     await page.waitForSelector('table', { timeout: 10000 });
 

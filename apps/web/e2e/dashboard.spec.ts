@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Dashboard page', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/dira-fair/dashboard');
+    await page.goto('/dira-fair/dashboard/');
   });
 
   test('neighborhood table is visible with rows', async ({ page }) => {
@@ -30,7 +30,7 @@ test.describe('Dashboard page', () => {
     // Wait for data to load (chart or its container)
     await page.waitForSelector('text=Rent Index Trend', { timeout: 10000 });
 
-    const chartSection = page.getByText('Rent Index Trend');
+    const chartSection = page.getByRole('heading', { name: /Rent Index Trend/i });
     await expect(chartSection).toBeVisible();
   });
 

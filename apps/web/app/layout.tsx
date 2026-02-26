@@ -5,7 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "DiraFair | Is Your Tel Aviv Rent Fair?",
   description:
-    "See how your Tel Aviv rent compares to the market. Get data-driven negotiation tips and rental market intelligence.",
+    "Compare your Tel Aviv rent to real market data. Negotiate with confidence.",
 };
 
 function Navbar() {
