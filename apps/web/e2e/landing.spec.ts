@@ -6,7 +6,7 @@ test.describe('Landing page', () => {
   });
 
   test('page loads with correct title', async ({ page }) => {
-    await expect(page).toHaveTitle(/dira-fair/i);
+    await expect(page).toHaveTitle(/DiraFair/i);
   });
 
   test('hero headline is visible', async ({ page }) => {
@@ -15,14 +15,18 @@ test.describe('Landing page', () => {
     await expect(headline).toContainText('Fair?');
   });
 
-  test('rent checker form is present with all fields', async ({ page }) => {
-    // Neighborhood dropdown
-    const neighborhoodSelect = page.locator('select').first();
-    await expect(neighborhoodSelect).toBeVisible();
+  test('rent checker form has address input and rooms dropdown', async ({ page }) => {
+    // Address autocomplete input (default mode)
+    const addressInput = page.locator('input[placeholder*="address"]');
+    await expect(addressInput).toBeVisible();
+
+    // "Or select neighborhood" toggle
+    const toggleBtn = page.getByText(/select neighborhood/i);
+    await expect(toggleBtn).toBeVisible();
 
     // Rooms dropdown
-    const roomsSelect = page.locator('select').nth(1);
-    await expect(roomsSelect).toBeVisible();
+    const roomsSelect = page.locator('select');
+    await expect(roomsSelect.first()).toBeVisible();
 
     // Sqm input
     const sqmInput = page.locator('input[placeholder*="60"]');
@@ -37,23 +41,25 @@ test.describe('Landing page', () => {
     await expect(submitBtn).toBeVisible();
   });
 
-  test('neighborhood dropdown has at least 15 neighborhoods', async ({ page }) => {
-    const neighborhoodSelect = page.locator('select').first();
-    // Wait for neighborhoods to load (they load via useEffect)
+  test('manual neighborhood mode has at least 15 options', async ({ page }) => {
+    // Switch to manual neighborhood select
+    const toggleBtn = page.getByText(/select neighborhood/i);
+    await toggleBtn.click();
+
+    // Wait for neighborhoods to load
     await page.waitForFunction(() => {
-      const select = document.querySelector('select');
-      return select && select.options.length > 15;
+      const selects = document.querySelectorAll('select');
+      return selects.length > 0 && selects[0].options.length > 15;
     }, undefined, { timeout: 10000 });
 
+    const neighborhoodSelect = page.locator('select').first();
     const optionCount = await neighborhoodSelect.locator('option').count();
-    // At least 15 neighborhoods + 1 placeholder option = 16
     expect(optionCount).toBeGreaterThanOrEqual(16);
   });
 
   test('rooms dropdown shows Israeli room definitions', async ({ page }) => {
-    const roomsSelect = page.locator('select').nth(1);
+    const roomsSelect = page.locator('select').first();
     const options = await roomsSelect.locator('option').allTextContents();
-    // Should include Israeli room count explanations
     expect(options.some(o => o.includes('salon'))).toBeTruthy();
     expect(options.some(o => o.includes('bed'))).toBeTruthy();
   });
@@ -63,48 +69,15 @@ test.describe('Landing page', () => {
     await expect(note).toBeVisible();
   });
 
-  test('how it works section is visible', async ({ page }) => {
-    const section = page.getByText('How It Works');
-    await expect(section).toBeVisible();
-  });
+  test('listing count and source info are shown', async ({ page }) => {
+    // The subtitle shows listing count, sources, and neighborhoods
+    const listingInfo = page.getByText(/listings/i);
+    await expect(listingInfo.first()).toBeVisible();
 
-  test('market snapshot section shows stats', async ({ page }) => {
-    const section = page.getByText('Tel Aviv Market Snapshot');
-    await expect(section).toBeVisible();
+    const sourcesInfo = page.getByText(/sources/i);
+    await expect(sourcesInfo.first()).toBeVisible();
 
-    // Should show avg rent
-    const avgRent = page.getByText('Avg Rent (2BR)');
-    await expect(avgRent).toBeVisible();
-  });
-
-  test('success stories section is visible', async ({ page }) => {
-    const section = page.getByText('Tenants Who Negotiated & Won');
-    await expect(section).toBeVisible();
-
-    // Should show savings
-    const savings = page.getByText(/Saved.*\/yr/);
-    await expect(savings.first()).toBeVisible();
-  });
-
-  test('data sources section has links to real sources', async ({ page }) => {
-    const section = page.getByText('Our Data Sources');
-    await expect(section).toBeVisible();
-
-    // Yad2 link
-    const yad2Link = page.locator('a[href*="yad2.co.il"]').first();
-    await expect(yad2Link).toBeVisible();
-
-    // CBS link
-    const cbsLink = page.locator('a[href*="cbs.gov.il"]').first();
-    await expect(cbsLink).toBeVisible();
-  });
-
-  test('useful resources for tenants are shown', async ({ page }) => {
-    const section = page.getByText('Useful Resources for Tenants');
-    await expect(section).toBeVisible();
-
-    // Tenant rights link
-    const tenantRightsLink = page.locator('a[href*="lawoffice.org.il"]').first();
-    await expect(tenantRightsLink).toBeVisible();
+    const neighborhoodsInfo = page.getByText(/neighborhoods/i);
+    await expect(neighborhoodsInfo.first()).toBeVisible();
   });
 });
