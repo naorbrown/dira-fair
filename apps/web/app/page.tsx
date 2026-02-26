@@ -38,7 +38,7 @@ export default function HomePage() {
               <RentCheckerForm variant="card" />
             </div>
             <p className="mt-3 text-center text-sm text-gray-400">
-              {stats.total_listings} listings across {stats.neighborhoods_covered} neighborhoods &middot; Updated {DATA_META.last_updated}
+              {stats.total_listings} listings from {DATA_META.sources.length} sources across {stats.neighborhoods_covered} neighborhoods &middot; Updated {DATA_META.last_updated}
             </p>
           </div>
         </div>

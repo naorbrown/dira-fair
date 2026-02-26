@@ -6,7 +6,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { checkRent } from "@/lib/api";
 import { formatRent } from "@/lib/format";
-import { NEIGHBORHOODS, getQualityComparables, getYad2SearchUrl, SUCCESS_STORIES, USEFUL_LINKS, DATA_META } from "@/lib/data";
+import { NEIGHBORHOODS, getQualityComparables, getYad2SearchUrl, SOURCE_LABELS, SUCCESS_STORIES, USEFUL_LINKS, DATA_META } from "@/lib/data";
 import RentScoreCard from "@/components/rent-score-card";
 import PriceDistribution from "@/components/price-distribution";
 import type { RentCheckResponse, RentalListing } from "@/lib/types";
@@ -95,7 +95,7 @@ function CompRow({
               rel="noopener noreferrer"
               className="shrink-0 rounded bg-brand-teal/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-teal hover:bg-brand-teal/20"
             >
-              View on Yad2
+              {SOURCE_LABELS[comp.source as keyof typeof SOURCE_LABELS] ?? comp.source}
             </a>
           </div>
           <p className="mt-0.5 text-xs text-gray-500">
