@@ -1,6 +1,6 @@
 "use client";
 
-import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from "react-leaflet";
 import { formatRent } from "@/lib/format";
 import { useEffect } from "react";
 
@@ -12,6 +12,7 @@ interface MapListing {
   price_per_sqm: number;
   lat: number;
   lng: number;
+  source_url: string;
 }
 
 interface ListingMapProps {
@@ -69,8 +70,8 @@ export default function ListingMap({
       style={{ minHeight: 350 }}
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
       />
       <FitBounds comparables={comparables} center={center} />
 
@@ -81,28 +82,28 @@ export default function ListingMap({
           <CircleMarker
             key={i}
             center={[comp.lat, comp.lng]}
-            radius={isHovered ? 10 : 7}
+            radius={isHovered ? 9 : 6}
             pathOptions={{
-              color: cheaper ? "#16a34a" : "#dc2626",
-              fillColor: cheaper ? "#22c55e" : "#ef4444",
-              fillOpacity: isHovered ? 1 : 0.8,
-              weight: isHovered ? 3 : 2,
+              color: "#fff",
+              fillColor: cheaper ? "#16a34a" : "#dc2626",
+              fillOpacity: isHovered ? 1 : 0.85,
+              weight: isHovered ? 2 : 1.5,
+            }}
+            eventHandlers={{
+              click: () => {
+                window.open(comp.source_url, "_blank", "noopener,noreferrer");
+              },
             }}
           >
-            <Popup>
-              <div className="text-sm">
-                <p className="font-semibold">{comp.address}</p>
-                <p className="mt-1">
-                  <span className="font-bold">{formatRent(comp.monthly_rent)}</span>/mo
-                  {" · "}{comp.rooms} rooms · {comp.sqm} sqm
-                </p>
-                {cheaper && (
-                  <p className="mt-1 font-medium text-green-600">
-                    {formatRent(userRent - comp.monthly_rent)}/mo cheaper
-                  </p>
-                )}
-              </div>
-            </Popup>
+            <Tooltip
+              direction="top"
+              offset={[0, -8]}
+            >
+              <span className="text-xs">
+                <strong>{formatRent(comp.monthly_rent)}</strong>
+                {" · "}{comp.rooms}r · {comp.sqm}m²
+              </span>
+            </Tooltip>
           </CircleMarker>
         );
       })}

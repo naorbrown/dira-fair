@@ -219,6 +219,7 @@ function CheckContent() {
     price_per_sqm: c.price_per_sqm,
     lat: c.lat,
     lng: c.lng,
+    source_url: c.source_url,
   }));
 
   // Market context
