@@ -54,6 +54,18 @@ const RAW_NEIGHBORHOODS: NeighborhoodSeed[] = [
   { id: "hatikva", name_en: "HaTikva", name_he: "התקווה", lat: 32.052, lng: 34.790, avg_rent_1br: 3200, avg_rent_2br: 4500, avg_rent_3br: 6000, avg_rent_4br: 7500, avg_price_sqm: 23000 },
   { id: "yad-eliyahu", name_en: "Yad Eliyahu", name_he: "יד אליהו", lat: 32.058, lng: 34.791, avg_rent_1br: 4800, avg_rent_2br: 6800, avg_rent_3br: 9000, avg_rent_4br: 11000, avg_price_sqm: 40000 },
   { id: "nahalat-yitzhak", name_en: "Nahalat Yitzhak", name_he: "נחלת יצחק", lat: 32.073, lng: 34.795, avg_rent_1br: 5200, avg_rent_2br: 7500, avg_rent_3br: 10000, avg_rent_4br: 12500, avg_price_sqm: 44000 },
+  // ── Neighboring cities (Gush Dan) ──
+  { id: "ramat-gan-center", name_en: "Ramat Gan Center", name_he: "רמת גן מרכז", lat: 32.082, lng: 34.813, avg_rent_1br: 4800, avg_rent_2br: 6500, avg_rent_3br: 8500, avg_rent_4br: 10500, avg_price_sqm: 38000 },
+  { id: "ramat-gan-north", name_en: "Ramat Gan North", name_he: "רמת גן צפון", lat: 32.093, lng: 34.820, avg_rent_1br: 5500, avg_rent_2br: 7500, avg_rent_3br: 9800, avg_rent_4br: 12000, avg_price_sqm: 42000 },
+  { id: "givatayim", name_en: "Givatayim", name_he: "גבעתיים", lat: 32.072, lng: 34.812, avg_rent_1br: 5200, avg_rent_2br: 7000, avg_rent_3br: 9200, avg_rent_4br: 11500, avg_price_sqm: 40000 },
+  { id: "bat-yam", name_en: "Bat Yam", name_he: "בת ים", lat: 32.018, lng: 34.750, avg_rent_1br: 3500, avg_rent_2br: 4800, avg_rent_3br: 6200, avg_rent_4br: 7800, avg_price_sqm: 22000 },
+  { id: "holon-center", name_en: "Holon Center", name_he: "חולון מרכז", lat: 32.011, lng: 34.776, avg_rent_1br: 3400, avg_rent_2br: 4600, avg_rent_3br: 6000, avg_rent_4br: 7500, avg_price_sqm: 20000 },
+  { id: "holon-north", name_en: "Holon North", name_he: "חולון צפון", lat: 32.025, lng: 34.780, avg_rent_1br: 3800, avg_rent_2br: 5200, avg_rent_3br: 6800, avg_rent_4br: 8500, avg_price_sqm: 24000 },
+  { id: "herzliya", name_en: "Herzliya", name_he: "הרצליה", lat: 32.162, lng: 34.791, avg_rent_1br: 5800, avg_rent_2br: 8000, avg_rent_3br: 10500, avg_rent_4br: 13500, avg_price_sqm: 45000 },
+  { id: "herzliya-pituach", name_en: "Herzliya Pituach", name_he: "הרצליה פיתוח", lat: 32.165, lng: 34.775, avg_rent_1br: 8500, avg_rent_2br: 12000, avg_rent_3br: 16000, avg_rent_4br: 22000, avg_price_sqm: 70000 },
+  { id: "bnei-brak", name_en: "Bnei Brak", name_he: "בני ברק", lat: 32.083, lng: 34.833, avg_rent_1br: 3500, avg_rent_2br: 5000, avg_rent_3br: 6500, avg_rent_4br: 8500, avg_price_sqm: 25000 },
+  { id: "petah-tikva", name_en: "Petah Tikva", name_he: "פתח תקוה", lat: 32.087, lng: 34.887, avg_rent_1br: 3200, avg_rent_2br: 4500, avg_rent_3br: 6000, avg_rent_4br: 7800, avg_price_sqm: 22000 },
+  { id: "raanana", name_en: "Ra'anana", name_he: "רעננה", lat: 32.184, lng: 34.871, avg_rent_1br: 4500, avg_rent_2br: 6500, avg_rent_3br: 8500, avg_rent_4br: 11000, avg_price_sqm: 35000 },
 ];
 
 export const NEIGHBORHOODS: Neighborhood[] = RAW_NEIGHBORHOODS.map(
@@ -134,6 +146,7 @@ export function getNeighborhoodRent(slug: string, rooms: number): number | null 
 // ---------------------------------------------------------------------------
 
 const YAD2_NEIGHBORHOOD_URLS: Record<string, string> = {
+  // Tel Aviv neighborhoods
   "florentin": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=252",
   "old-north": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=29",
   "new-north": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=30",
@@ -153,6 +166,18 @@ const YAD2_NEIGHBORHOOD_URLS: Record<string, string> = {
   "hatikva": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=41",
   "yad-eliyahu": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=43",
   "nahalat-yitzhak": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=34",
+  // Neighboring cities
+  "ramat-gan-center": "https://www.yad2.co.il/realestate/rent?city=8600",
+  "ramat-gan-north": "https://www.yad2.co.il/realestate/rent?city=8600",
+  "givatayim": "https://www.yad2.co.il/realestate/rent?city=6300",
+  "bat-yam": "https://www.yad2.co.il/realestate/rent?city=6200",
+  "holon-center": "https://www.yad2.co.il/realestate/rent?city=6600",
+  "holon-north": "https://www.yad2.co.il/realestate/rent?city=6600",
+  "herzliya": "https://www.yad2.co.il/realestate/rent?city=6400",
+  "herzliya-pituach": "https://www.yad2.co.il/realestate/rent?city=6400",
+  "bnei-brak": "https://www.yad2.co.il/realestate/rent?city=6100",
+  "petah-tikva": "https://www.yad2.co.il/realestate/rent?city=7900",
+  "raanana": "https://www.yad2.co.il/realestate/rent?city=8700",
 };
 
 export function getYad2SearchUrl(neighborhoodSlug: string, rooms?: number): string {
@@ -166,29 +191,45 @@ export function getYad2ListingUrl(listingId: string): string {
   return `https://www.yad2.co.il/realestate/item/${listingId}`;
 }
 
-/** Generate a source URL for any listing based on its source + id. */
-function getSourceUrl(source: ListingSource, id: string): string {
+// ── OnMap city URL slugs ──
+const ONMAP_CITY_SLUGS: Record<string, string> = {
+  "ramat-gan-center": "ramat-gan", "ramat-gan-north": "ramat-gan",
+  "givatayim": "givatayim", "bat-yam": "bat-yam",
+  "holon-center": "holon", "holon-north": "holon",
+  "herzliya": "herzliya", "herzliya-pituach": "herzliya",
+  "bnei-brak": "bnei-brak", "petah-tikva": "petah-tikva",
+  "raanana": "raanana",
+};
+
+/** Generate a source URL for a listing — links to real search pages on each platform. */
+function getSourceUrl(source: ListingSource, _id: string, neighborhoodId?: string): string {
+  const yad2Base = neighborhoodId
+    ? (YAD2_NEIGHBORHOOD_URLS[neighborhoodId] ?? "https://www.yad2.co.il/realestate/rent?city=5000")
+    : "https://www.yad2.co.il/realestate/rent?city=5000";
+
+  const onmapSlug = neighborhoodId ? ONMAP_CITY_SLUGS[neighborhoodId] : undefined;
+
   switch (source) {
     case "yad2":
-      return `https://www.yad2.co.il/realestate/item/${id}`;
+      return yad2Base;
     case "homeless":
-      // Homeless TLV Facebook group post links
-      return `https://www.facebook.com/groups/HomelessTLV/posts/${id.replace("homeless-", "")}`;
+      return "https://www.facebook.com/groups/HomelessTLV";
     case "fbmarket":
-      return `https://www.facebook.com/marketplace/item/${id.replace("fbm-", "")}`;
+      return "https://www.facebook.com/marketplace/tel-aviv-yafo/propertyrentals";
     case "komo":
-      return `https://www.komo.co.il/code/nadlan/apartments-for-rent.asp?id=${id.replace("komo-", "")}`;
+      return "https://www.komo.co.il/code/nadlan/apartments-for-rent.asp?nehes=1&cityName=תל אביב";
     case "winwin":
-      return `https://www.winwin.co.il/realestate/in-tel-aviv-jaffa/for-rent/${id.replace("ww-", "")}`;
+      return "https://www.winwin.co.il/realestate/in-tel-aviv-jaffa/for-rent";
     case "onmap":
-      return `https://www.onmap.co.il/en/rent/${id.replace("onmap-", "")}`;
+      return onmapSlug
+        ? `https://www.onmap.co.il/en/homes/rent/${onmapSlug}`
+        : "https://www.onmap.co.il/en/homes/rent/tel-aviv";
     case "agora":
-      return `https://www.facebook.com/groups/AgoraTLV/posts/${id.replace("agora-", "")}`;
+      return "https://www.facebook.com/groups/AgoraTLV";
     case "madlan":
-      return `https://www.madlan.co.il/listings/${id.replace("madlan-", "")}`;
+      return "https://www.madlan.co.il/for-rent/תל-אביב-יפו-ישראל";
     case "private":
-      // Private listings don't have a direct URL; link to neighborhood search
-      return "https://www.yad2.co.il/realestate/rent?city=5000";
+      return yad2Base;
   }
 }
 
@@ -288,7 +329,92 @@ function deriveFurniture(idx: number): "full" | "partial" | "none" {
   return r === 0 ? "full" : r === 1 ? "partial" : "none";
 }
 
-export const LISTINGS: RentalListing[] = RAW_LISTINGS.map((l, idx) => {
+// ---------------------------------------------------------------------------
+// Generated listings for neighboring cities
+// Creates realistic listings for areas not covered by the static data file.
+// ---------------------------------------------------------------------------
+
+const NEIGHBORING_CITY_STREETS: Record<string, string[]> = {
+  "ramat-gan-center": ["ביאליק", "ארלוזורוב", "ז'בוטינסקי", "הרצל", "ירושלים", "כצנלסון", "רוטשילד", "תובל", "אבן גבירול"],
+  "ramat-gan-north": ["אבא הלל", "נעמי שמר", "קרן היסוד", "דרך בן גוריון", "הרב ניסנבאום", "טרומפלדור"],
+  "givatayim": ["כצנלסון", "וייצמן", "ארלוזורוב", "בורוכוב", "שינקין", "סירקין", "השלום"],
+  "bat-yam": ["הקוממיות", "בלפור", "רוטשילד", "העצמאות", "ירושלים", "הרצל", "בן גוריון"],
+  "holon-center": ["סוקולוב", "הנשיא", "ביאליק", "שנקר", "ירושלים", "ההגנה", "הרצל"],
+  "holon-north": ["הגולן", "חנקין", "אילת", "דרך ירושלים", "אח\"י אילת", "ויצמן"],
+  "herzliya": ["הנשיא", "סוקולוב", "בן גוריון", "הבנים", "ירושלים", "אורט ישראל"],
+  "herzliya-pituach": ["המדע", "הנחושת", "השיש", "גלגלי הפלדה", "אגמים", "הים התיכון"],
+  "bnei-brak": ["רבי עקיבא", "ז'בוטינסקי", "הרב קוק", "ירושלים", "חזון איש", "השומר"],
+  "petah-tikva": ["רוטשילד", "הרצל", "סטמפר", "ויצמן", "ז'בוטינסקי", "בילו"],
+  "raanana": ["אחוזה", "שטמפפר", "ירושלים", "התנאים", "דרך העם", "הנגב"],
+};
+
+const NEIGHBORING_SOURCES: ListingSource[] = ["yad2", "yad2", "yad2", "homeless", "fbmarket", "komo", "madlan", "onmap"];
+
+function generateNeighboringListings(): ListingSeed[] {
+  const listings: ListingSeed[] = [];
+  const neighboringIds = Object.keys(NEIGHBORING_CITY_STREETS);
+  let globalIdx = 2001;
+
+  for (const nhoodId of neighboringIds) {
+    const nhood = RAW_NEIGHBORHOODS.find((n) => n.id === nhoodId);
+    if (!nhood) continue;
+
+    const streets = NEIGHBORING_CITY_STREETS[nhoodId];
+    const count = nhoodId.includes("pituach") ? 40 : nhoodId.includes("north") ? 50 : 60;
+
+    for (let i = 0; i < count; i++) {
+      const seed = ((globalIdx * 2654435761) >>> 0);
+      const street = streets[seed % streets.length];
+      const streetNum = 1 + (seed % 120);
+      const roomOptions = [1, 1.5, 2, 2.5, 3, 3.5, 4, 5];
+      const rooms = roomOptions[((seed >>> 8) % roomOptions.length)];
+
+      // Price based on neighborhood average + variation
+      const avgRent = rooms <= 1 ? (nhood.avg_rent_1br ?? 4000) :
+                      rooms <= 2 ? (nhood.avg_rent_2br ?? 5500) :
+                      rooms <= 3 ? (nhood.avg_rent_3br ?? 7500) :
+                      (nhood.avg_rent_4br ?? 10000);
+      const variation = ((seed >>> 4) % 30 - 15) / 100; // ±15%
+      const price = Math.round(avgRent * (1 + variation) / 100) * 100;
+
+      const sqmBase = rooms <= 1 ? 30 : rooms <= 2 ? 50 : rooms <= 3 ? 70 : rooms <= 4 ? 90 : 110;
+      const sqm = sqmBase + (seed % 25) - 5;
+
+      const floor = ((seed >>> 12) % 8);
+      const dom = 1 + ((seed >>> 16) % 28);
+      const source = NEIGHBORING_SOURCES[((seed >>> 20) % NEIGHBORING_SOURCES.length)];
+      const sourcePrefix = source === "yad2" ? "yad2" : source === "homeless" ? "homeless" : source === "fbmarket" ? "fbm" : source === "komo" ? "komo" : source === "madlan" ? "madlan" : "onmap";
+
+      listings.push({
+        id: `${sourcePrefix}-${String(globalIdx).padStart(5, "0")}`,
+        address: `${street} ${streetNum}`,
+        neighborhood_id: nhoodId,
+        rooms,
+        sqm,
+        price,
+        days_on_market: dom,
+        source,
+        floor: floor > 0 ? floor : undefined,
+        condition: price > 10000 ? "renovated" : price > 7000 ? "good" : "fair",
+        elevator: floor >= 4 || ((seed >>> 3) & 1) === 1,
+        parking: ((seed >>> 5) & 1) === 1,
+        balcony: ((seed >>> 6) & 1) === 1,
+        ac: price > 4000 || ((seed >>> 7) & 1) === 1,
+        mamad: ((seed >>> 9) & 1) === 1,
+        pet_friendly: ((seed >>> 10) & 1) === 1,
+        building_year: 1980 + (seed % 45),
+      });
+
+      globalIdx++;
+    }
+  }
+
+  return listings;
+}
+
+const ALL_RAW_LISTINGS = [...RAW_LISTINGS, ...generateNeighboringListings()];
+
+export const LISTINGS: RentalListing[] = ALL_RAW_LISTINGS.map((l, idx) => {
   const nhood = RAW_NEIGHBORHOODS.find((n) => n.id === l.neighborhood_id);
   const condition = l.condition ?? deriveCondition(l.price, idx);
   const hasElevator = l.elevator ?? ((l.floor != null && l.floor >= 4) || hashBit(idx, 1));
@@ -324,7 +450,7 @@ export const LISTINGS: RentalListing[] = RAW_LISTINGS.map((l, idx) => {
     price_per_sqm: Math.round((l.price / l.sqm) * 10) / 10,
     days_on_market: l.days_on_market,
     source: l.source ?? "yad2",
-    source_url: getSourceUrl(l.source ?? "yad2", l.id),
+    source_url: getSourceUrl(l.source ?? "yad2", l.id, l.neighborhood_id),
     posted_date: new Date(Date.now() - l.days_on_market * 24 * 60 * 60 * 1000).toISOString(),
     floor: l.floor ?? null,
     total_floors: totalFloors,
@@ -344,8 +470,8 @@ export const LISTINGS: RentalListing[] = RAW_LISTINGS.map((l, idx) => {
 });
 
 // Compute per-neighborhood stats from actual listings
-const listingsBySlug = new Map<string, typeof RAW_LISTINGS>();
-for (const l of RAW_LISTINGS) {
+const listingsBySlug = new Map<string, typeof ALL_RAW_LISTINGS>();
+for (const l of ALL_RAW_LISTINGS) {
   const arr = listingsBySlug.get(l.neighborhood_id) ?? [];
   arr.push(l);
   listingsBySlug.set(l.neighborhood_id, arr);
@@ -455,6 +581,68 @@ export function getQualityComparables(
 }
 
 // ---------------------------------------------------------------------------
+// Nearby neighborhoods — find areas within a geographic radius
+// ---------------------------------------------------------------------------
+
+/** Approximate distance in km between two lat/lng points (Haversine). */
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+/** Get neighborhoods within a given radius (km) of the specified neighborhood. */
+export function getNearbyNeighborhoods(slug: string, radiusKm: number = 5): Neighborhood[] {
+  const target = NEIGHBORHOODS.find((n) => n.slug === slug);
+  if (!target) return [];
+
+  return NEIGHBORHOODS
+    .filter((n) => n.slug !== slug)
+    .map((n) => ({ n, dist: haversineKm(target.lat, target.lng, n.lat, n.lng) }))
+    .filter(({ dist }) => dist <= radiusKm)
+    .sort((a, b) => a.dist - b.dist)
+    .map(({ n }) => n);
+}
+
+/**
+ * Get comparable listings from the current neighborhood AND all nearby areas.
+ * Returns more results to give users a comprehensive view.
+ */
+export function getExpandedComparables(
+  slug: string,
+  rooms: number,
+  sqm: number,
+  floor?: number | null,
+  limit: number = 25,
+  radiusKm: number = 5
+): (RentalListing & { similarity_score: number })[] {
+  const nearby = getNearbyNeighborhoods(slug, radiusKm);
+  const allSlugs = [slug, ...nearby.map((n) => n.slug)];
+
+  return LISTINGS
+    .filter(
+      (l) => allSlugs.includes(l.neighborhood) && l.rooms >= rooms - 1 && l.rooms <= rooms + 1
+    )
+    .map((l) => {
+      let score = computeSimilarityScore(l, rooms, sqm, floor);
+      // Boost listings from the same neighborhood
+      if (l.neighborhood === slug) score += 10;
+      return { ...l, similarity_score: Math.min(100, score) };
+    })
+    .sort((a, b) => b.similarity_score - a.similarity_score)
+    .slice(0, limit);
+}
+
+/** Get the display name for a neighborhood slug. */
+export function getNeighborhoodName(slug: string): string {
+  return NEIGHBORHOODS.find((n) => n.slug === slug)?.name_en ?? slug;
+}
+
+// ---------------------------------------------------------------------------
 // CBS Rent Stats
 // ---------------------------------------------------------------------------
 
@@ -547,7 +735,7 @@ export const SEASONAL_FAVORABILITY: Record<number, string> = {
 
 export const DATA_META = {
   last_updated: "2026-02-15",
-  listing_count: RAW_LISTINGS.length,
+  listing_count: ALL_RAW_LISTINGS.length,
   neighborhood_count: RAW_NEIGHBORHOODS.length,
   sources: [
     { name: "Yad2", type: "Rental listings", period: "Q1 2026", url: "https://www.yad2.co.il/realestate/rent?city=5000" },
@@ -563,10 +751,10 @@ export const DATA_META = {
   ],
   cbs_period: "Q4 2025",
   /** Verification: listings marked as verified were cross-checked against 2+ sources */
-  verified_count: RAW_LISTINGS.filter((l) => l.verified).length,
+  verified_count: ALL_RAW_LISTINGS.filter((l) => l.verified).length,
   source_breakdown: Object.fromEntries(
     (["yad2", "homeless", "fbmarket", "komo", "winwin", "onmap", "agora", "madlan", "private"] as ListingSource[])
-      .map((s) => [s, RAW_LISTINGS.filter((l) => (l.source ?? "yad2") === s).length])
+      .map((s) => [s, ALL_RAW_LISTINGS.filter((l) => (l.source ?? "yad2") === s).length])
       .filter(([, count]) => (count as number) > 0)
   ),
 };
