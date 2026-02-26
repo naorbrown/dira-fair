@@ -10,6 +10,7 @@ const config: Config = {
       colors: {
         brand: {
           navy: "#1e3a5f",
+          "navy-light": "#2a4f7a",
           teal: "#0d9488",
           "teal-light": "#14b8a6",
         },
@@ -21,6 +22,9 @@ const config: Config = {
           red: "#dc2626",
           "red-bg": "#fee2e2",
         },
+      },
+      animation: {
+        "fade-slide-up": "fadeSlideUp 0.4s ease-out forwards",
       },
     },
   },
