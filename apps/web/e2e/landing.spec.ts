@@ -11,7 +11,7 @@ test.describe('Landing page', () => {
 
   test('hero headline is visible', async ({ page }) => {
     const headline = page.locator('h1');
-    await expect(headline).toContainText('Is Your Tel Aviv Rent');
+    await expect(headline).toContainText('Is Your Rent');
     await expect(headline).toContainText('Fair?');
   });
 
@@ -25,11 +25,11 @@ test.describe('Landing page', () => {
     await expect(roomsSelect).toBeVisible();
 
     // Sqm input
-    const sqmInput = page.locator('input[placeholder*="sqm"]');
+    const sqmInput = page.locator('input[placeholder*="60"]');
     await expect(sqmInput).toBeVisible();
 
     // Rent input
-    const rentInput = page.locator('input[placeholder*="rent"]');
+    const rentInput = page.locator('input[placeholder*="7500"]');
     await expect(rentInput).toBeVisible();
 
     // Submit button
@@ -50,12 +50,61 @@ test.describe('Landing page', () => {
     expect(optionCount).toBeGreaterThanOrEqual(16);
   });
 
-  test('stat cards below the fold are visible', async ({ page }) => {
-    // The stat cards section with "Average Rent (2BR)", "Year-over-Year Growth", and seasonal tip
-    const avgRentCard = page.getByText('Average Rent (2BR)');
-    await expect(avgRentCard).toBeVisible();
+  test('rooms dropdown shows Israeli room definitions', async ({ page }) => {
+    const roomsSelect = page.locator('select').nth(1);
+    const options = await roomsSelect.locator('option').allTextContents();
+    // Should include Israeli room count explanations
+    expect(options.some(o => o.includes('salon'))).toBeTruthy();
+    expect(options.some(o => o.includes('bed'))).toBeTruthy();
+  });
 
-    const yoyCard = page.getByText('Year-over-Year Growth');
-    await expect(yoyCard).toBeVisible();
+  test('Israeli room count note is visible', async ({ page }) => {
+    const note = page.getByText(/room count includes the living room/i);
+    await expect(note).toBeVisible();
+  });
+
+  test('how it works section is visible', async ({ page }) => {
+    const section = page.getByText('How It Works');
+    await expect(section).toBeVisible();
+  });
+
+  test('market snapshot section shows stats', async ({ page }) => {
+    const section = page.getByText('Tel Aviv Market Snapshot');
+    await expect(section).toBeVisible();
+
+    // Should show avg rent
+    const avgRent = page.getByText('Avg Rent (2BR)');
+    await expect(avgRent).toBeVisible();
+  });
+
+  test('success stories section is visible', async ({ page }) => {
+    const section = page.getByText('Tenants Who Negotiated & Won');
+    await expect(section).toBeVisible();
+
+    // Should show savings
+    const savings = page.getByText(/Saved.*\/yr/);
+    await expect(savings.first()).toBeVisible();
+  });
+
+  test('data sources section has links to real sources', async ({ page }) => {
+    const section = page.getByText('Our Data Sources');
+    await expect(section).toBeVisible();
+
+    // Yad2 link
+    const yad2Link = page.locator('a[href*="yad2.co.il"]').first();
+    await expect(yad2Link).toBeVisible();
+
+    // CBS link
+    const cbsLink = page.locator('a[href*="cbs.gov.il"]').first();
+    await expect(cbsLink).toBeVisible();
+  });
+
+  test('useful resources for tenants are shown', async ({ page }) => {
+    const section = page.getByText('Useful Resources for Tenants');
+    await expect(section).toBeVisible();
+
+    // Tenant rights link
+    const kolZchutLink = page.locator('a[href*="kolzchut"]').first();
+    await expect(kolZchutLink).toBeVisible();
   });
 });

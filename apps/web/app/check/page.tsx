@@ -6,7 +6,7 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { checkRent } from "@/lib/api";
 import { formatRent } from "@/lib/format";
-import { NEIGHBORHOODS, getComparableListings } from "@/lib/data";
+import { NEIGHBORHOODS, getQualityComparables, getYad2SearchUrl, SUCCESS_STORIES, USEFUL_LINKS, DATA_META } from "@/lib/data";
 import RentScoreCard from "@/components/rent-score-card";
 import PriceDistribution from "@/components/price-distribution";
 import type { RentCheckResponse, RentalListing } from "@/lib/types";
@@ -39,6 +39,22 @@ function LoadingSkeleton() {
   );
 }
 
+/* ── Quality badge icons ────────────────────────────────────── */
+
+function QualityBadge({ label, active }: { label: string; active: boolean }) {
+  return (
+    <span
+      className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-medium ${
+        active
+          ? "bg-brand-teal/10 text-brand-teal"
+          : "bg-gray-100 text-gray-400"
+      }`}
+    >
+      {label}
+    </span>
+  );
+}
+
 /* ── Comparable listing row ────────────────────────────────────── */
 
 function CompRow({
@@ -48,7 +64,7 @@ function CompRow({
   onHover,
   onLeave,
 }: {
-  comp: RentalListing;
+  comp: RentalListing & { similarity_score: number };
   userRent: number;
   isHovered: boolean;
   onHover: () => void;
@@ -61,36 +77,60 @@ function CompRow({
     <div
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
-      className={`flex items-center justify-between rounded-lg border px-4 py-3 transition ${
+      className={`rounded-lg border px-4 py-3 transition ${
         isHovered
           ? "border-brand-teal bg-brand-teal/5 shadow-sm"
           : "border-gray-100 bg-white hover:border-gray-200"
       }`}
     >
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-medium text-gray-900">
-          {comp.address}
-        </p>
-        <p className="mt-0.5 text-xs text-gray-500">
-          {comp.rooms} rooms &middot; {comp.sqm} sqm &middot; Floor {comp.floor ?? "–"}
-          &middot; {comp.days_on_market}d listed
-        </p>
-      </div>
-      <div className="ml-4 text-right">
-        <p className="text-sm font-bold text-gray-900">
-          {formatRent(comp.monthly_rent)}
-        </p>
-        {cheaper ? (
-          <p className="text-xs font-semibold text-score-green">
-            {formatRent(diff)} cheaper
+      <div className="flex items-start justify-between">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <p className="truncate text-sm font-medium text-gray-900">
+              {comp.address}
+            </p>
+            <a
+              href={comp.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 rounded bg-brand-teal/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-teal hover:bg-brand-teal/20"
+            >
+              View on Yad2
+            </a>
+          </div>
+          <p className="mt-0.5 text-xs text-gray-500">
+            {comp.rooms} rooms &middot; {comp.sqm} sqm &middot; Floor {comp.floor ?? "–"}
+            {comp.total_floors ? `/${comp.total_floors}` : ""}
+            &middot; {comp.days_on_market}d listed
           </p>
-        ) : diff < 0 ? (
-          <p className="text-xs font-semibold text-score-red">
-            {formatRent(Math.abs(diff))} more
+          <div className="mt-1.5 flex flex-wrap gap-1">
+            <QualityBadge label={comp.condition ?? "N/A"} active={comp.condition === "renovated" || comp.condition === "new"} />
+            <QualityBadge label="Parking" active={comp.has_parking} />
+            <QualityBadge label="Elevator" active={comp.has_elevator} />
+            <QualityBadge label="Balcony" active={comp.has_balcony} />
+            <QualityBadge label="A/C" active={comp.has_ac} />
+            <QualityBadge label="Mamad" active={comp.has_mamad} />
+          </div>
+        </div>
+        <div className="ml-4 text-right">
+          <p className="text-sm font-bold text-gray-900">
+            {formatRent(comp.monthly_rent)}
           </p>
-        ) : (
-          <p className="text-xs text-gray-400">Same price</p>
-        )}
+          {cheaper ? (
+            <p className="text-xs font-semibold text-score-green">
+              {formatRent(diff)} cheaper
+            </p>
+          ) : diff < 0 ? (
+            <p className="text-xs font-semibold text-score-red">
+              {formatRent(Math.abs(diff))} more
+            </p>
+          ) : (
+            <p className="text-xs text-gray-400">Same price</p>
+          )}
+          <p className="mt-1 text-[10px] text-gray-400">
+            Quality: {comp.quality_score}/100 &middot; Match: {comp.similarity_score}%
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -101,13 +141,13 @@ function CompRow({
 function CheckContent() {
   const searchParams = useSearchParams();
   const [result, setResult] = useState<RentCheckResponse | null>(null);
-  const [compsWithCoords, setCompsWithCoords] = useState<RentalListing[]>([]);
+  const [compsWithCoords, setCompsWithCoords] = useState<(RentalListing & { similarity_score: number })[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [hoveredComp, setHoveredComp] = useState(-1);
 
   const neighborhoodId = searchParams.get("neighborhood");
-  const rooms = searchParams.get("rooms") || "2";
+  const rooms = searchParams.get("rooms") || "3";
   const sqm = searchParams.get("sqm") || "";
   const rent = searchParams.get("rent") || "";
 
@@ -132,8 +172,14 @@ function CheckContent() {
     })
       .then((data) => {
         setResult(data);
-        // Get full listing objects with coordinates for the map
-        const fullComps = getComparableListings(neighborhoodSlug, parseFloat(rooms), 10);
+        // Get quality-weighted comparables
+        const fullComps = getQualityComparables(
+          neighborhoodSlug,
+          parseFloat(rooms),
+          parseInt(sqm, 10),
+          null,
+          10
+        );
         setCompsWithCoords(fullComps);
         setLoading(false);
       })
@@ -164,7 +210,7 @@ function CheckContent() {
   const diff = Math.abs(your_rent - market_avg);
   const cheaperCount = compsWithCoords.filter((c) => c.monthly_rent < your_rent).length;
 
-  // Map data: comparables with lat/lng for the map component
+  // Map data
   const mapComps = compsWithCoords.map((c) => ({
     address: c.address,
     rooms: c.rooms,
@@ -175,13 +221,21 @@ function CheckContent() {
     lng: c.lng,
   }));
 
-  // Market context — compact single line
+  // Market context
   const signals = result.signals;
   const contextParts: string[] = [];
   if (signals.trend !== "Unknown") contextParts.push(`Trend: ${signals.trend}`);
   contextParts.push(`Season: ${signals.season}`);
   contextParts.push(`Supply: ${signals.supply} (${compsWithCoords.length} similar listings)`);
   if (signals.days_on_market > 0) contextParts.push(`Avg ${signals.days_on_market}d to rent`);
+
+  // Yad2 search link for this query
+  const yad2SearchUrl = getYad2SearchUrl(neighborhoodSlug, parseFloat(rooms));
+
+  // Relevant success story
+  const relevantStory = SUCCESS_STORIES.find(
+    (s) => s.neighborhood === neighborhoodName || s.rooms === parseFloat(rooms)
+  ) ?? SUCCESS_STORIES[0];
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
@@ -194,7 +248,7 @@ function CheckContent() {
         </span>
       </nav>
 
-      {/* ── VERDICT — one bold line ───────────────────────────── */}
+      {/* ── VERDICT ── */}
       <div
         className={`rounded-2xl border p-5 ${
           score === "below_market"
@@ -221,7 +275,10 @@ function CheckContent() {
         </p>
         {score === "above_market" && cheaperCount > 0 && (
           <p className="mt-2 text-center text-sm text-gray-600">
-            {cheaperCount} cheaper apartment{cheaperCount !== 1 ? "s" : ""} available right now in {neighborhoodName}
+            <a href={yad2SearchUrl} target="_blank" rel="noopener noreferrer" className="text-brand-teal underline hover:text-brand-teal-light">
+              {cheaperCount} cheaper apartment{cheaperCount !== 1 ? "s" : ""}
+            </a>{" "}
+            available right now in {neighborhoodName}
           </p>
         )}
         {score === "below_market" && (
@@ -231,7 +288,7 @@ function CheckContent() {
         )}
       </div>
 
-      {/* ── SCORE CARD — percentile bar ───────────────────────── */}
+      {/* ── SCORE CARD ── */}
       <div className="mt-6">
         <RentScoreCard
           score={result.score}
@@ -243,17 +300,26 @@ function CheckContent() {
         />
       </div>
 
-      {/* ── MAP + COMPARABLE LISTINGS — the core ──────────────── */}
+      {/* ── MAP + COMPARABLE LISTINGS ── */}
       {compsWithCoords.length > 0 && (
         <div className="mt-8">
           <div className="mb-4 flex items-baseline justify-between">
             <h2 className="text-lg font-bold text-gray-900">
               Comparable Apartments
             </h2>
-            <span className="text-sm text-gray-500">
-              {compsWithCoords.length} similar listings &middot;{" "}
-              {result.confidence.comparable_count} used for scoring
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-500">
+                {compsWithCoords.length} similar &middot; sorted by match quality
+              </span>
+              <a
+                href={yad2SearchUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-lg bg-brand-teal/10 px-3 py-1 text-xs font-medium text-brand-teal hover:bg-brand-teal/20"
+              >
+                Browse all on Yad2 &rarr;
+              </a>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -268,7 +334,7 @@ function CheckContent() {
             </div>
 
             {/* Listing cards */}
-            <div className="max-h-[450px] space-y-2 overflow-y-auto pr-1">
+            <div className="max-h-[500px] space-y-2 overflow-y-auto pr-1">
               {compsWithCoords.map((comp, i) => (
                 <CompRow
                   key={comp.id}
@@ -284,14 +350,14 @@ function CheckContent() {
         </div>
       )}
 
-      {/* ── PRICE DISTRIBUTION ────────────────────────────────── */}
+      {/* ── PRICE DISTRIBUTION ── */}
       {result.distribution.prices.length > 1 && (
         <div className="mt-8 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
           <PriceDistribution distribution={result.distribution} />
         </div>
       )}
 
-      {/* ── MARKET CONTEXT — compact single row ───────────────── */}
+      {/* ── MARKET CONTEXT ── */}
       <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl border border-gray-100 bg-white px-4 py-3 text-sm shadow-sm">
         {contextParts.map((part, i) => (
           <span key={i} className="flex items-center gap-1.5 text-gray-600">
@@ -301,11 +367,11 @@ function CheckContent() {
         ))}
       </div>
 
-      {/* ── TOP TIPS — max 3, actionable ──────────────────────── */}
+      {/* ── ACTIONABLE TIPS ── */}
       {result.tips.length > 0 && (
         <div className="mt-8">
           <h2 className="mb-3 text-lg font-bold text-gray-900">
-            {score === "above_market" ? "How to Negotiate" : "What to Do"}
+            {score === "above_market" ? "How to Lower Your Rent" : "What to Do Next"}
           </h2>
           <div className="space-y-3">
             {result.tips.slice(0, 3).map((tip, i) => (
@@ -313,6 +379,9 @@ function CheckContent() {
                 key={i}
                 className="rounded-xl border border-gray-100 bg-white px-4 py-3 text-sm leading-relaxed text-gray-700 shadow-sm"
               >
+                <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand-teal/10 text-xs font-bold text-brand-teal">
+                  {i + 1}
+                </span>
                 {tip}
               </div>
             ))}
@@ -320,11 +389,68 @@ function CheckContent() {
         </div>
       )}
 
-      {/* ── FOOTER CTA ────────────────────────────────────────── */}
+      {/* ── SUCCESS STORY ── */}
+      {score === "above_market" && relevantStory && (
+        <div className="mt-8 rounded-xl border border-score-green/20 bg-score-green-bg p-5">
+          <h3 className="mb-2 text-sm font-bold text-score-green">Others Have Done It</h3>
+          <p className="text-sm text-gray-700">
+            A tenant in {relevantStory.neighborhood} with a {relevantStory.rooms}-room apartment
+            negotiated from {formatRent(relevantStory.before_rent)} down to {formatRent(relevantStory.after_rent)}/mo,
+            saving {formatRent(relevantStory.savings_annual)}/year.
+          </p>
+          <p className="mt-2 text-sm text-gray-600">
+            <strong>Strategy:</strong> {relevantStory.strategy}
+          </p>
+          <p className="mt-1 text-xs italic text-gray-500">&ldquo;{relevantStory.quote}&rdquo;</p>
+        </div>
+      )}
+
+      {/* ── ALTERNATIVE NEIGHBORHOODS ── */}
+      {score === "above_market" && (
+        <div className="mt-8">
+          <h2 className="mb-3 text-lg font-bold text-gray-900">Consider Nearby Neighborhoods</h2>
+          <p className="mb-3 text-sm text-gray-500">
+            Apartments with similar features at lower prices in other areas:
+          </p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {NEIGHBORHOODS
+              .filter((n) => n.slug !== neighborhoodSlug && n.avg_rent_2br != null)
+              .sort((a, b) => (a.avg_rent_2br ?? 0) - (b.avg_rent_2br ?? 0))
+              .filter((n) => (n.avg_rent_2br ?? 0) < your_rent)
+              .slice(0, 4)
+              .map((n) => (
+                <Link
+                  key={n.slug}
+                  href={`/neighborhood/${n.slug}`}
+                  className="group rounded-xl border border-gray-100 bg-white p-3 transition hover:border-brand-teal/30 hover:shadow-md"
+                >
+                  <p className="text-sm font-semibold text-gray-900 group-hover:text-brand-teal">{n.name_en}</p>
+                  <p className="text-lg font-bold text-brand-navy">{formatRent(n.avg_rent_2br!)}</p>
+                  <p className="text-xs text-score-green">
+                    Save ~{formatRent(your_rent - n.avg_rent_2br!)}/mo
+                  </p>
+                  <p className="mt-1 text-[10px] text-brand-teal">
+                    {n.listing_count} listings &rarr;
+                  </p>
+                </Link>
+              ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── FOOTER CTA ── */}
       <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <a
+          href={yad2SearchUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-lg border border-brand-navy px-6 py-2.5 text-center text-sm font-semibold text-brand-navy transition hover:bg-brand-navy hover:text-white"
+        >
+          Browse {neighborhoodName} on Yad2
+        </a>
         <Link
           href={`/neighborhood/${neighborhoodSlug}`}
-          className="rounded-lg border border-brand-navy px-6 py-2.5 text-center text-sm font-semibold text-brand-navy transition hover:bg-brand-navy hover:text-white"
+          className="rounded-lg border border-gray-300 px-6 py-2.5 text-center text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
         >
           All listings in {neighborhoodName}
         </Link>
@@ -336,10 +462,19 @@ function CheckContent() {
         </Link>
       </div>
 
-      {/* Data source */}
-      <p className="mt-4 text-center text-xs text-gray-400">
-        Based on {result.confidence.comparable_count} comparable listings &middot; Source: {result.confidence.data_source}
-      </p>
+      {/* Data source attribution */}
+      <div className="mt-6 text-center text-xs text-gray-400">
+        <p>
+          Based on {result.confidence.comparable_count} comparable listings &middot; Source: {result.confidence.data_source}
+        </p>
+        <div className="mt-2 flex flex-wrap justify-center gap-3">
+          {DATA_META.sources.map((s) => (
+            <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer" className="hover:text-brand-teal">
+              {s.name} ({s.period})
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

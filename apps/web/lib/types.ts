@@ -22,10 +22,24 @@ export interface RentalListing {
   price_per_sqm: number;
   days_on_market: number;
   source: string;
+  source_url: string;
   posted_date: string;
   floor?: number | null;
+  total_floors?: number | null;
   lat: number;
   lng: number;
+  // Quality fields
+  condition: "new" | "renovated" | "good" | "fair" | "needs_work" | null;
+  has_parking: boolean;
+  has_elevator: boolean;
+  has_balcony: boolean;
+  has_ac: boolean;
+  has_mamad: boolean; // Safe room (ממ"ד) — important in Israel
+  is_pet_friendly: boolean;
+  building_year: number | null;
+  furniture: "full" | "partial" | "none" | null;
+  /** Quality score 0-100 based on weighted amenities */
+  quality_score: number;
 }
 
 export interface RentCheckRequest {
@@ -52,6 +66,16 @@ export interface ComparableListing {
   sqm: number;
   monthly_rent: number;
   price_per_sqm: number;
+  source_url: string;
+  quality_score: number;
+  similarity_score: number;
+  condition: string | null;
+  has_parking: boolean;
+  has_elevator: boolean;
+  has_balcony: boolean;
+  has_ac: boolean;
+  has_mamad: boolean;
+  floor?: number | null;
 }
 
 export interface ConfidenceInfo {

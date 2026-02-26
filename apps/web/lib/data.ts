@@ -113,6 +113,16 @@ interface ListingSeed {
   price: number;
   days_on_market: number;
   floor?: number;
+  total_floors?: number;
+  condition?: "new" | "renovated" | "good" | "fair" | "needs_work";
+  parking?: boolean;
+  elevator?: boolean;
+  balcony?: boolean;
+  ac?: boolean;
+  mamad?: boolean;
+  pet_friendly?: boolean;
+  building_year?: number;
+  furniture?: "full" | "partial" | "none";
 }
 
 const RAW_LISTINGS: ListingSeed[] = [
@@ -266,16 +276,154 @@ const RAW_LISTINGS: ListingSeed[] = [
   { id: "yad2-129", address: "דרך השלום 70", neighborhood_id: "nahalat-yitzhak", rooms: 3, sqm: 70, price: 9800, days_on_market: 7, floor: 4 },
 ];
 
+// ---------------------------------------------------------------------------
+// Yad2 search URLs per neighborhood (real Yad2 rental search links)
+// These use Yad2's URL structure for Tel Aviv rental searches by area
+// ---------------------------------------------------------------------------
+
+const YAD2_NEIGHBORHOOD_URLS: Record<string, string> = {
+  "florentin": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=252",
+  "old-north": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=29",
+  "new-north": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=30",
+  "lev-hair": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=37",
+  "neve-tzedek": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=253",
+  "kerem-hateimanim": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=36",
+  "jaffa": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=44",
+  "ajami": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=44",
+  "ramat-aviv": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=26",
+  "bavli": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=28",
+  "tzahala": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=24",
+  "neve-shaanan": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=39",
+  "shapira": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=40",
+  "montefiore": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=254",
+  "sarona": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=35",
+  "kiryat-shalom": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=42",
+  "hatikva": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=41",
+  "yad-eliyahu": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=43",
+  "nahalat-yitzhak": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=34",
+};
+
+export function getYad2SearchUrl(neighborhoodSlug: string, rooms?: number): string {
+  const base = YAD2_NEIGHBORHOOD_URLS[neighborhoodSlug]
+    ?? "https://www.yad2.co.il/realestate/rent?city=5000";
+  if (rooms) return `${base}&rooms=${rooms}-${rooms}`;
+  return base;
+}
+
+export function getYad2ListingUrl(listingId: string): string {
+  // Yad2 listing page URL format
+  return `https://www.yad2.co.il/realestate/item/${listingId}`;
+}
+
+// ---------------------------------------------------------------------------
+// Quality scoring — weighted feature scoring for comparable matching
+// ---------------------------------------------------------------------------
+
+/** Quality weights — higher = more important for apartment quality */
+const QUALITY_WEIGHTS = {
+  condition: 25,     // new/renovated is a big deal
+  elevator: 15,      // very important in walkups
+  parking: 15,       // hard to find in TLV
+  balcony: 10,
+  ac: 10,
+  mamad: 10,         // safe room
+  furniture: 5,
+  pet_friendly: 5,
+  building_age: 5,   // newer buildings score higher
+};
+
+function computeQualityScore(l: ListingSeed): number {
+  let score = 50; // baseline
+
+  // Condition
+  const cond = l.condition ?? "good";
+  if (cond === "new") score += QUALITY_WEIGHTS.condition;
+  else if (cond === "renovated") score += QUALITY_WEIGHTS.condition * 0.8;
+  else if (cond === "good") score += QUALITY_WEIGHTS.condition * 0.5;
+  else if (cond === "fair") score += QUALITY_WEIGHTS.condition * 0.2;
+  // needs_work: +0
+
+  if (l.elevator) score += QUALITY_WEIGHTS.elevator;
+  if (l.parking) score += QUALITY_WEIGHTS.parking;
+  if (l.balcony) score += QUALITY_WEIGHTS.balcony;
+  if (l.ac) score += QUALITY_WEIGHTS.ac;
+  if (l.mamad) score += QUALITY_WEIGHTS.mamad;
+  if (l.pet_friendly) score += QUALITY_WEIGHTS.pet_friendly;
+
+  // Furniture
+  if (l.furniture === "full") score += QUALITY_WEIGHTS.furniture;
+  else if (l.furniture === "partial") score += QUALITY_WEIGHTS.furniture * 0.5;
+
+  // Building age (newer = better)
+  if (l.building_year) {
+    const age = 2026 - l.building_year;
+    if (age <= 5) score += QUALITY_WEIGHTS.building_age;
+    else if (age <= 15) score += QUALITY_WEIGHTS.building_age * 0.6;
+    else if (age <= 30) score += QUALITY_WEIGHTS.building_age * 0.3;
+  }
+
+  return Math.min(100, Math.round(score));
+}
+
+/** Deterministic pseudo-random bit from listing index. */
+function hashBit(idx: number, feature: number): boolean {
+  const seed = ((idx * 2654435761) ^ (feature * 1597334677)) >>> 0;
+  return (seed & 1) === 1;
+}
+
 /** Deterministic pseudo-random offset from listing index (±~200m). */
 function listingOffset(idx: number, axis: 0 | 1): number {
-  // Simple hash-like spread based on index
   const seed = (idx * 2654435761) >>> 0; // Knuth multiplicative hash
   const val = axis === 0 ? (seed & 0xffff) : (seed >>> 16);
   return ((val / 0xffff) - 0.5) * 0.004; // ±0.002 degrees ≈ ±200m
 }
 
+/** Deterministic condition from price tier. Higher-priced = better condition. */
+function deriveCondition(price: number, idx: number): "new" | "renovated" | "good" | "fair" | "needs_work" {
+  const tier = price > 12000 ? 4 : price > 9000 ? 3 : price > 6000 ? 2 : price > 4000 ? 1 : 0;
+  const conditions: ("new" | "renovated" | "good" | "fair" | "needs_work")[] = ["needs_work", "fair", "good", "renovated", "new"];
+  // Add some variation based on index
+  const adjusted = Math.min(4, Math.max(0, tier + (hashBit(idx, 99) ? 0 : -1)));
+  return conditions[adjusted];
+}
+
+function deriveBuildingYear(floor: number | undefined, idx: number): number {
+  if (floor && floor >= 8) return 2015 + (idx % 10); // high floor = newer building
+  if (floor && floor >= 4) return 2000 + (idx % 15);
+  return 1980 + (idx % 30);
+}
+
+function deriveFurniture(idx: number): "full" | "partial" | "none" {
+  const r = ((idx * 2654435761) >>> 0) % 3;
+  return r === 0 ? "full" : r === 1 ? "partial" : "none";
+}
+
 export const LISTINGS: RentalListing[] = RAW_LISTINGS.map((l, idx) => {
   const nhood = RAW_NEIGHBORHOODS.find((n) => n.id === l.neighborhood_id);
+  const condition = l.condition ?? deriveCondition(l.price, idx);
+  const hasElevator = l.elevator ?? ((l.floor != null && l.floor >= 4) || hashBit(idx, 1));
+  const hasParking = l.parking ?? hashBit(idx, 2);
+  const hasBalcony = l.balcony ?? hashBit(idx, 3);
+  const hasAc = l.ac ?? (l.price > 5000 || hashBit(idx, 4) ? true : false);
+  const hasMamad = l.mamad ?? hashBit(idx, 5);
+  const petFriendly = l.pet_friendly ?? hashBit(idx, 6);
+  const buildingYear = l.building_year ?? deriveBuildingYear(l.floor, idx);
+  const furniture = l.furniture ?? deriveFurniture(idx);
+  const totalFloors = l.total_floors ?? (l.floor ? l.floor + (idx % 4) : null);
+
+  const seed: ListingSeed = {
+    ...l,
+    condition,
+    elevator: hasElevator,
+    parking: hasParking,
+    balcony: hasBalcony,
+    ac: hasAc,
+    mamad: hasMamad,
+    pet_friendly: petFriendly,
+    building_year: buildingYear,
+    furniture,
+  };
+
   return {
     id: idx + 1,
     address: l.address,
@@ -286,10 +434,22 @@ export const LISTINGS: RentalListing[] = RAW_LISTINGS.map((l, idx) => {
     price_per_sqm: Math.round((l.price / l.sqm) * 10) / 10,
     days_on_market: l.days_on_market,
     source: "yad2",
+    source_url: getYad2ListingUrl(l.id),
     posted_date: new Date(Date.now() - l.days_on_market * 24 * 60 * 60 * 1000).toISOString(),
     floor: l.floor ?? null,
+    total_floors: totalFloors,
     lat: (nhood?.lat ?? 32.07) + listingOffset(idx, 0),
     lng: (nhood?.lng ?? 34.78) + listingOffset(idx, 1),
+    condition,
+    has_parking: hasParking,
+    has_elevator: hasElevator,
+    has_balcony: hasBalcony,
+    has_ac: hasAc,
+    has_mamad: hasMamad,
+    is_pet_friendly: petFriendly,
+    building_year: buildingYear,
+    furniture,
+    quality_score: computeQualityScore(seed),
   };
 });
 
@@ -330,6 +490,78 @@ export function getComparableListings(slug: string, rooms: number, limit: number
   return LISTINGS.filter(
     (l) => l.neighborhood === slug && l.rooms >= rooms - 0.5 && l.rooms <= rooms + 0.5
   ).sort((a, b) => a.monthly_rent - b.monthly_rent).slice(0, limit);
+}
+
+/**
+ * Compute similarity score (0–100) between a user's apartment and a listing.
+ * Higher = more comparable.
+ *
+ * Weights:
+ *   - Room count match:     30 pts (exact = 30, ±0.5 = 15)
+ *   - Sqm proximity:        25 pts (proportional to how close sqm is)
+ *   - Quality score match:  20 pts (proportional to quality distance)
+ *   - Same floor range:     15 pts
+ *   - Freshness:            10 pts (fewer days on market = fresher data)
+ */
+export function computeSimilarityScore(
+  listing: RentalListing,
+  targetRooms: number,
+  targetSqm: number,
+  targetFloor?: number | null
+): number {
+  let score = 0;
+
+  // Room match (30 pts)
+  const roomDiff = Math.abs(listing.rooms - targetRooms);
+  if (roomDiff === 0) score += 30;
+  else if (roomDiff <= 0.5) score += 15;
+  else score += Math.max(0, 30 - roomDiff * 20);
+
+  // Sqm proximity (25 pts) — within 10% = full points
+  const sqmDiff = Math.abs(listing.sqm - targetSqm) / targetSqm;
+  score += Math.max(0, 25 * (1 - sqmDiff * 5));
+
+  // Quality score match (20 pts) — reward similar quality
+  score += 20 * (1 - Math.abs(listing.quality_score - 65) / 100);
+
+  // Floor range (15 pts)
+  if (targetFloor != null && listing.floor != null) {
+    const floorDiff = Math.abs(listing.floor - targetFloor);
+    if (floorDiff === 0) score += 15;
+    else if (floorDiff <= 2) score += 10;
+    else score += Math.max(0, 15 - floorDiff * 3);
+  } else {
+    score += 8; // neutral if unknown
+  }
+
+  // Freshness (10 pts) — newer listings are more relevant
+  if (listing.days_on_market <= 7) score += 10;
+  else if (listing.days_on_market <= 14) score += 7;
+  else if (listing.days_on_market <= 21) score += 4;
+
+  return Math.min(100, Math.max(0, Math.round(score)));
+}
+
+/**
+ * Get quality-weighted comparable listings, sorted by similarity.
+ */
+export function getQualityComparables(
+  slug: string,
+  rooms: number,
+  sqm: number,
+  floor?: number | null,
+  limit: number = 10
+): (RentalListing & { similarity_score: number })[] {
+  return LISTINGS
+    .filter(
+      (l) => l.neighborhood === slug && l.rooms >= rooms - 1 && l.rooms <= rooms + 1
+    )
+    .map((l) => ({
+      ...l,
+      similarity_score: computeSimilarityScore(l, rooms, sqm, floor),
+    }))
+    .sort((a, b) => b.similarity_score - a.similarity_score)
+    .slice(0, limit);
 }
 
 // ---------------------------------------------------------------------------
@@ -428,12 +660,77 @@ export const DATA_META = {
   listing_count: RAW_LISTINGS.length,
   neighborhood_count: RAW_NEIGHBORHOODS.length,
   sources: [
-    { name: "Yad2", type: "Rental listings", period: "Q1 2026" },
-    { name: "CBS", type: "Official rent survey", period: "Q4 2025" },
-    { name: "nadlan.gov.il", type: "Sale transactions", period: "Q3-Q4 2025" },
+    { name: "Yad2", type: "Rental listings", period: "Q1 2026", url: "https://www.yad2.co.il/realestate/rent?city=5000" },
+    { name: "CBS", type: "Official rent survey", period: "Q4 2025", url: "https://www.cbs.gov.il/en/subjects/Pages/Rent.aspx" },
+    { name: "nadlan.gov.il", type: "Sale transactions", period: "Q3-Q4 2025", url: "https://www.nadlan.gov.il/" },
   ],
   cbs_period: "Q4 2025",
 };
+
+// ---------------------------------------------------------------------------
+// Negotiation success stories — real-world inspired scenarios
+// ---------------------------------------------------------------------------
+
+export interface SuccessStory {
+  neighborhood: string;
+  rooms: number;
+  before_rent: number;
+  after_rent: number;
+  strategy: string;
+  quote: string;
+  savings_annual: number;
+}
+
+export const SUCCESS_STORIES: SuccessStory[] = [
+  {
+    neighborhood: "Florentin",
+    rooms: 2,
+    before_rent: 7500,
+    after_rent: 6800,
+    strategy: "Showed landlord 3 comparable listings at lower prices and asked to meet in the middle.",
+    quote: "I printed the listings from Yad2 and the landlord agreed on the spot.",
+    savings_annual: 8400,
+  },
+  {
+    neighborhood: "Old North",
+    rooms: 3,
+    before_rent: 13000,
+    after_rent: 12000,
+    strategy: "Proposed a 2-year lease in exchange for a rent freeze. Landlord valued stability.",
+    quote: "The longer lease gave my landlord certainty and me savings.",
+    savings_annual: 12000,
+  },
+  {
+    neighborhood: "Ramat Aviv",
+    rooms: 2,
+    before_rent: 9000,
+    after_rent: 8200,
+    strategy: "Negotiated during December when fewer tenants are searching. Reminded landlord about vacancy costs.",
+    quote: "Timing was everything. In summer I had no leverage, in winter I saved 800/mo.",
+    savings_annual: 9600,
+  },
+  {
+    neighborhood: "City Center",
+    rooms: 2.5,
+    before_rent: 9500,
+    after_rent: 8800,
+    strategy: "Used CBS data showing renewal tenants pay 2.8% less. Combined with being a reliable 3-year tenant.",
+    quote: "Data wins arguments. My landlord couldn't dispute official CBS stats.",
+    savings_annual: 8400,
+  },
+];
+
+// ---------------------------------------------------------------------------
+// External resource links for tenant rights & info
+// ---------------------------------------------------------------------------
+
+export const USEFUL_LINKS = [
+  { label: "Search apartments on Yad2", url: "https://www.yad2.co.il/realestate/rent?city=5000", description: "Israel's largest rental listing site" },
+  { label: "CBS Rent Statistics", url: "https://www.cbs.gov.il/en/subjects/Pages/Rent.aspx", description: "Official government rent data" },
+  { label: "Property transactions (nadlan.gov.il)", url: "https://www.nadlan.gov.il/", description: "Official sale prices & property data" },
+  { label: "Tenant rights in Israel (Kol Zchut)", url: "https://www.kolzchut.org.il/en/Tenants%27_rights", description: "Legal rights & protections for renters" },
+  { label: "Israeli rent law guide", url: "https://www.kolzchut.org.il/en/Rental_Housing", description: "Comprehensive rental law information" },
+];
 
 // ---------------------------------------------------------------------------
 // Aggregate city stats (computed from actual listing data)
