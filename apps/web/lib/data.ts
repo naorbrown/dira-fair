@@ -54,18 +54,12 @@ const RAW_NEIGHBORHOODS: NeighborhoodSeed[] = [
   { id: "hatikva", name_en: "HaTikva", name_he: "התקווה", lat: 32.052, lng: 34.790, avg_rent_1br: 3200, avg_rent_2br: 4500, avg_rent_3br: 6000, avg_rent_4br: 7500, avg_price_sqm: 23000 },
   { id: "yad-eliyahu", name_en: "Yad Eliyahu", name_he: "יד אליהו", lat: 32.058, lng: 34.791, avg_rent_1br: 4800, avg_rent_2br: 6800, avg_rent_3br: 9000, avg_rent_4br: 11000, avg_price_sqm: 40000 },
   { id: "nahalat-yitzhak", name_en: "Nahalat Yitzhak", name_he: "נחלת יצחק", lat: 32.073, lng: 34.795, avg_rent_1br: 5200, avg_rent_2br: 7500, avg_rent_3br: 10000, avg_rent_4br: 12500, avg_price_sqm: 44000 },
-  // ── Neighboring cities (Gush Dan) ──
-  { id: "ramat-gan-center", name_en: "Ramat Gan Center", name_he: "רמת גן מרכז", lat: 32.082, lng: 34.813, avg_rent_1br: 4800, avg_rent_2br: 6500, avg_rent_3br: 8500, avg_rent_4br: 10500, avg_price_sqm: 38000 },
-  { id: "ramat-gan-north", name_en: "Ramat Gan North", name_he: "רמת גן צפון", lat: 32.093, lng: 34.820, avg_rent_1br: 5500, avg_rent_2br: 7500, avg_rent_3br: 9800, avg_rent_4br: 12000, avg_price_sqm: 42000 },
-  { id: "givatayim", name_en: "Givatayim", name_he: "גבעתיים", lat: 32.072, lng: 34.812, avg_rent_1br: 5200, avg_rent_2br: 7000, avg_rent_3br: 9200, avg_rent_4br: 11500, avg_price_sqm: 40000 },
-  { id: "bat-yam", name_en: "Bat Yam", name_he: "בת ים", lat: 32.018, lng: 34.750, avg_rent_1br: 3500, avg_rent_2br: 4800, avg_rent_3br: 6200, avg_rent_4br: 7800, avg_price_sqm: 22000 },
-  { id: "holon-center", name_en: "Holon Center", name_he: "חולון מרכז", lat: 32.011, lng: 34.776, avg_rent_1br: 3400, avg_rent_2br: 4600, avg_rent_3br: 6000, avg_rent_4br: 7500, avg_price_sqm: 20000 },
-  { id: "holon-north", name_en: "Holon North", name_he: "חולון צפון", lat: 32.025, lng: 34.780, avg_rent_1br: 3800, avg_rent_2br: 5200, avg_rent_3br: 6800, avg_rent_4br: 8500, avg_price_sqm: 24000 },
-  { id: "herzliya", name_en: "Herzliya", name_he: "הרצליה", lat: 32.162, lng: 34.791, avg_rent_1br: 5800, avg_rent_2br: 8000, avg_rent_3br: 10500, avg_rent_4br: 13500, avg_price_sqm: 45000 },
-  { id: "herzliya-pituach", name_en: "Herzliya Pituach", name_he: "הרצליה פיתוח", lat: 32.165, lng: 34.775, avg_rent_1br: 8500, avg_rent_2br: 12000, avg_rent_3br: 16000, avg_rent_4br: 22000, avg_price_sqm: 70000 },
-  { id: "bnei-brak", name_en: "Bnei Brak", name_he: "בני ברק", lat: 32.083, lng: 34.833, avg_rent_1br: 3500, avg_rent_2br: 5000, avg_rent_3br: 6500, avg_rent_4br: 8500, avg_price_sqm: 25000 },
-  { id: "petah-tikva", name_en: "Petah Tikva", name_he: "פתח תקוה", lat: 32.087, lng: 34.887, avg_rent_1br: 3200, avg_rent_2br: 4500, avg_rent_3br: 6000, avg_rent_4br: 7800, avg_price_sqm: 22000 },
-  { id: "raanana", name_en: "Ra'anana", name_he: "רעננה", lat: 32.184, lng: 34.871, avg_rent_1br: 4500, avg_rent_2br: 6500, avg_rent_3br: 8500, avg_rent_4br: 11000, avg_price_sqm: 35000 },
+  // ── Additional micro-neighborhoods to fill coverage gaps ──
+  { id: "noga", name_en: "Noga", name_he: "נגה", lat: 32.058, lng: 34.764, avg_rent_1br: 5800, avg_rent_2br: 7200, avg_rent_3br: 9500, avg_rent_4br: 12500, avg_price_sqm: 48000 },
+  { id: "lev-yafo", name_en: "Lev Yafo", name_he: "לב יפו", lat: 32.053, lng: 34.755, avg_rent_1br: 4200, avg_rent_2br: 5800, avg_rent_3br: 7500, avg_rent_4br: 9500, avg_price_sqm: 34000 },
+  { id: "rothschild", name_en: "Rothschild", name_he: "רוטשילד", lat: 32.064, lng: 34.774, avg_rent_1br: 7500, avg_rent_2br: 10500, avg_rent_3br: 14000, avg_rent_4br: 18500, avg_price_sqm: 68000 },
+  { id: "hadar-yosef", name_en: "Hadar Yosef", name_he: "הדר יוסף", lat: 32.100, lng: 34.800, avg_rent_1br: 5500, avg_rent_2br: 8000, avg_rent_3br: 10500, avg_rent_4br: 13000, avg_price_sqm: 46000 },
+  { id: "tel-baruch", name_en: "Tel Baruch", name_he: "תל ברוך", lat: 32.118, lng: 34.790, avg_rent_1br: 5200, avg_rent_2br: 7800, avg_rent_3br: 10200, avg_rent_4br: 13000, avg_price_sqm: 42000 },
 ];
 
 export const NEIGHBORHOODS: Neighborhood[] = RAW_NEIGHBORHOODS.map(
@@ -166,18 +160,11 @@ const YAD2_NEIGHBORHOOD_URLS: Record<string, string> = {
   "hatikva": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=41",
   "yad-eliyahu": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=43",
   "nahalat-yitzhak": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=34",
-  // Neighboring cities
-  "ramat-gan-center": "https://www.yad2.co.il/realestate/rent?city=8600",
-  "ramat-gan-north": "https://www.yad2.co.il/realestate/rent?city=8600",
-  "givatayim": "https://www.yad2.co.il/realestate/rent?city=6300",
-  "bat-yam": "https://www.yad2.co.il/realestate/rent?city=6200",
-  "holon-center": "https://www.yad2.co.il/realestate/rent?city=6600",
-  "holon-north": "https://www.yad2.co.il/realestate/rent?city=6600",
-  "herzliya": "https://www.yad2.co.il/realestate/rent?city=6400",
-  "herzliya-pituach": "https://www.yad2.co.il/realestate/rent?city=6400",
-  "bnei-brak": "https://www.yad2.co.il/realestate/rent?city=6100",
-  "petah-tikva": "https://www.yad2.co.il/realestate/rent?city=7900",
-  "raanana": "https://www.yad2.co.il/realestate/rent?city=8700",
+  "noga": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=252",
+  "lev-yafo": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=44",
+  "rothschild": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=37",
+  "hadar-yosef": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=28",
+  "tel-baruch": "https://www.yad2.co.il/realestate/rent?city=5000&neighborhood=26",
 };
 
 export function getYad2SearchUrl(neighborhoodSlug: string, rooms?: number): string {
@@ -191,23 +178,11 @@ export function getYad2ListingUrl(listingId: string): string {
   return `https://www.yad2.co.il/realestate/item/${listingId}`;
 }
 
-// ── OnMap city URL slugs ──
-const ONMAP_CITY_SLUGS: Record<string, string> = {
-  "ramat-gan-center": "ramat-gan", "ramat-gan-north": "ramat-gan",
-  "givatayim": "givatayim", "bat-yam": "bat-yam",
-  "holon-center": "holon", "holon-north": "holon",
-  "herzliya": "herzliya", "herzliya-pituach": "herzliya",
-  "bnei-brak": "bnei-brak", "petah-tikva": "petah-tikva",
-  "raanana": "raanana",
-};
-
 /** Generate a source URL for a listing — links to real search pages on each platform. */
 function getSourceUrl(source: ListingSource, _id: string, neighborhoodId?: string): string {
   const yad2Base = neighborhoodId
     ? (YAD2_NEIGHBORHOOD_URLS[neighborhoodId] ?? "https://www.yad2.co.il/realestate/rent?city=5000")
     : "https://www.yad2.co.il/realestate/rent?city=5000";
-
-  const onmapSlug = neighborhoodId ? ONMAP_CITY_SLUGS[neighborhoodId] : undefined;
 
   switch (source) {
     case "yad2":
@@ -221,9 +196,7 @@ function getSourceUrl(source: ListingSource, _id: string, neighborhoodId?: strin
     case "winwin":
       return "https://www.winwin.co.il/realestate/in-tel-aviv-jaffa/for-rent";
     case "onmap":
-      return onmapSlug
-        ? `https://www.onmap.co.il/en/homes/rent/${onmapSlug}`
-        : "https://www.onmap.co.il/en/homes/rent/tel-aviv";
+      return "https://www.onmap.co.il/en/homes/rent/tel-aviv";
     case "agora":
       return "https://www.facebook.com/groups/AgoraTLV";
     case "madlan":
@@ -330,37 +303,31 @@ function deriveFurniture(idx: number): "full" | "partial" | "none" {
 }
 
 // ---------------------------------------------------------------------------
-// Generated listings for neighboring cities
-// Creates realistic listings for areas not covered by the static data file.
+// Generated listings for new micro-neighborhoods
+// These neighborhoods don't have entries in the static listings-data file,
+// so we generate realistic ones at runtime.
 // ---------------------------------------------------------------------------
 
-const NEIGHBORING_CITY_STREETS: Record<string, string[]> = {
-  "ramat-gan-center": ["ביאליק", "ארלוזורוב", "ז'בוטינסקי", "הרצל", "ירושלים", "כצנלסון", "רוטשילד", "תובל", "אבן גבירול"],
-  "ramat-gan-north": ["אבא הלל", "נעמי שמר", "קרן היסוד", "דרך בן גוריון", "הרב ניסנבאום", "טרומפלדור"],
-  "givatayim": ["כצנלסון", "וייצמן", "ארלוזורוב", "בורוכוב", "שינקין", "סירקין", "השלום"],
-  "bat-yam": ["הקוממיות", "בלפור", "רוטשילד", "העצמאות", "ירושלים", "הרצל", "בן גוריון"],
-  "holon-center": ["סוקולוב", "הנשיא", "ביאליק", "שנקר", "ירושלים", "ההגנה", "הרצל"],
-  "holon-north": ["הגולן", "חנקין", "אילת", "דרך ירושלים", "אח\"י אילת", "ויצמן"],
-  "herzliya": ["הנשיא", "סוקולוב", "בן גוריון", "הבנים", "ירושלים", "אורט ישראל"],
-  "herzliya-pituach": ["המדע", "הנחושת", "השיש", "גלגלי הפלדה", "אגמים", "הים התיכון"],
-  "bnei-brak": ["רבי עקיבא", "ז'בוטינסקי", "הרב קוק", "ירושלים", "חזון איש", "השומר"],
-  "petah-tikva": ["רוטשילד", "הרצל", "סטמפר", "ויצמן", "ז'בוטינסקי", "בילו"],
-  "raanana": ["אחוזה", "שטמפפר", "ירושלים", "התנאים", "דרך העם", "הנגב"],
+const NEW_NHOOD_STREETS: Record<string, string[]> = {
+  "noga": ["רבי נחמן", "רבי מאיר", "יהודה מרגוזה", "שבזי", "אוהב שלום", "פנחס"],
+  "lev-yafo": ["יפת", "שבטי ישראל", "רזיאל", "קדם", "בית אשל", "לואי פסטר"],
+  "rothschild": ["רוטשילד", "אחד העם", "הרצל", "נחמני", "מונטיפיורי", "לילינבלום"],
+  "hadar-yosef": ["דרך נמיר", "שנקין", "שד' רוקח", "דב הוז", "ארלוזורוב"],
+  "tel-baruch": ["רחוב ברקן", "האשל", "מדרגות הים", "שד' אפריקה", "הגאולים"],
 };
 
-const NEIGHBORING_SOURCES: ListingSource[] = ["yad2", "yad2", "yad2", "homeless", "fbmarket", "komo", "madlan", "onmap"];
+const MICRO_SOURCES: ListingSource[] = ["yad2", "yad2", "yad2", "homeless", "fbmarket", "komo", "madlan", "onmap"];
 
-function generateNeighboringListings(): ListingSeed[] {
+function generateMicroNeighborhoodListings(): ListingSeed[] {
   const listings: ListingSeed[] = [];
-  const neighboringIds = Object.keys(NEIGHBORING_CITY_STREETS);
   let globalIdx = 2001;
 
-  for (const nhoodId of neighboringIds) {
+  for (const nhoodId of Object.keys(NEW_NHOOD_STREETS)) {
     const nhood = RAW_NEIGHBORHOODS.find((n) => n.id === nhoodId);
     if (!nhood) continue;
 
-    const streets = NEIGHBORING_CITY_STREETS[nhoodId];
-    const count = nhoodId.includes("pituach") ? 40 : nhoodId.includes("north") ? 50 : 60;
+    const streets = NEW_NHOOD_STREETS[nhoodId];
+    const count = 55; // ~55 listings per micro-neighborhood
 
     for (let i = 0; i < count; i++) {
       const seed = ((globalIdx * 2654435761) >>> 0);
@@ -369,20 +336,18 @@ function generateNeighboringListings(): ListingSeed[] {
       const roomOptions = [1, 1.5, 2, 2.5, 3, 3.5, 4, 5];
       const rooms = roomOptions[((seed >>> 8) % roomOptions.length)];
 
-      // Price based on neighborhood average + variation
       const avgRent = rooms <= 1 ? (nhood.avg_rent_1br ?? 4000) :
                       rooms <= 2 ? (nhood.avg_rent_2br ?? 5500) :
                       rooms <= 3 ? (nhood.avg_rent_3br ?? 7500) :
                       (nhood.avg_rent_4br ?? 10000);
-      const variation = ((seed >>> 4) % 30 - 15) / 100; // ±15%
+      const variation = ((seed >>> 4) % 30 - 15) / 100;
       const price = Math.round(avgRent * (1 + variation) / 100) * 100;
 
       const sqmBase = rooms <= 1 ? 30 : rooms <= 2 ? 50 : rooms <= 3 ? 70 : rooms <= 4 ? 90 : 110;
       const sqm = sqmBase + (seed % 25) - 5;
-
       const floor = ((seed >>> 12) % 8);
       const dom = 1 + ((seed >>> 16) % 28);
-      const source = NEIGHBORING_SOURCES[((seed >>> 20) % NEIGHBORING_SOURCES.length)];
+      const source = MICRO_SOURCES[((seed >>> 20) % MICRO_SOURCES.length)];
       const sourcePrefix = source === "yad2" ? "yad2" : source === "homeless" ? "homeless" : source === "fbmarket" ? "fbm" : source === "komo" ? "komo" : source === "madlan" ? "madlan" : "onmap";
 
       listings.push({
@@ -412,7 +377,7 @@ function generateNeighboringListings(): ListingSeed[] {
   return listings;
 }
 
-const ALL_RAW_LISTINGS = [...RAW_LISTINGS, ...generateNeighboringListings()];
+const ALL_RAW_LISTINGS = [...RAW_LISTINGS, ...generateMicroNeighborhoodListings()];
 
 export const LISTINGS: RentalListing[] = ALL_RAW_LISTINGS.map((l, idx) => {
   const nhood = RAW_NEIGHBORHOODS.find((n) => n.id === l.neighborhood_id);
@@ -595,8 +560,9 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): nu
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-/** Get neighborhoods within a given radius (km) of the specified neighborhood. */
-export function getNearbyNeighborhoods(slug: string, radiusKm: number = 5): Neighborhood[] {
+/** Get neighborhoods within a given radius (km) of the specified neighborhood.
+ *  Default 2km — walking-distance adjacent neighborhoods only. */
+export function getNearbyNeighborhoods(slug: string, radiusKm: number = 2): Neighborhood[] {
   const target = NEIGHBORHOODS.find((n) => n.slug === slug);
   if (!target) return [];
 
@@ -609,16 +575,18 @@ export function getNearbyNeighborhoods(slug: string, radiusKm: number = 5): Neig
 }
 
 /**
- * Get comparable listings from the current neighborhood AND all nearby areas.
- * Returns more results to give users a comprehensive view.
+ * Get comparable listings from the current neighborhood AND adjacent ones.
+ * Uses a 2km radius — only adjacent neighborhoods you could walk to.
+ * E.g. Neve Tzedek includes Florentin, Montefiore, Kerem HaTeimanim,
+ * but NOT Ramat Aviv or Bavli.
  */
 export function getExpandedComparables(
   slug: string,
   rooms: number,
   sqm: number,
   floor?: number | null,
-  limit: number = 25,
-  radiusKm: number = 5
+  limit: number = 20,
+  radiusKm: number = 2
 ): (RentalListing & { similarity_score: number })[] {
   const nearby = getNearbyNeighborhoods(slug, radiusKm);
   const allSlugs = [slug, ...nearby.map((n) => n.slug)];
@@ -630,7 +598,7 @@ export function getExpandedComparables(
     .map((l) => {
       let score = computeSimilarityScore(l, rooms, sqm, floor);
       // Boost listings from the same neighborhood
-      if (l.neighborhood === slug) score += 10;
+      if (l.neighborhood === slug) score += 15;
       return { ...l, similarity_score: Math.min(100, score) };
     })
     .sort((a, b) => b.similarity_score - a.similarity_score)
