@@ -220,7 +220,7 @@ export default function DashboardPage() {
       </div>
 
       <p className="mt-6 text-center text-xs text-gray-400">
-        Data from {DATA_META.sources.map((s) => s.name).join(", ")} | Updated {DATA_META.last_updated}
+        Data: {DATA_META.sources.map((s) => s.name).join(", ")} | Listings Q1 2026 &middot; CBS Q4 2025 | Updated {DATA_META.last_updated}
       </p>
     </div>
   );
