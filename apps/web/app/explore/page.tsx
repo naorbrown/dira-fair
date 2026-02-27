@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { LISTINGS, NEIGHBORHOODS, SOURCE_LABELS, getClosedMarketData, getCityClosedMarketSummary, DECISION_FACTORS } from "@/lib/data";
+import { LISTINGS, NEIGHBORHOODS, SOURCE_LABELS, getClosedMarketData, getCityClosedMarketSummary, DECISION_FACTORS, DATA_META } from "@/lib/data";
 import { formatRent } from "@/lib/format";
 import type { RentalListing, ClosedMarketData, NeighborhoodDecisionFactors } from "@/lib/types";
 import { PriceLegend } from "@/components/explore-map";
@@ -192,7 +192,7 @@ function MarketInsightsPanel({
       <div>
         <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">What People Actually Pay</h3>
         <p className="mt-0.5 text-[11px] text-gray-500">
-          Listed prices vs. closed deals — what tenants negotiate down to. Based on CBS surveys, community data, and lease renewal records.
+          Listed prices vs. closed deals — what tenants negotiate down to. Based on CBS rent survey (Q4 2025), community data, and lease renewal records.
         </p>
       </div>
 
@@ -867,6 +867,13 @@ export default function ExplorePage() {
             {activeTab === "factors" && (
               <DecisionFactorsPanel neighborhoodSlug={filters.neighborhood} />
             )}
+          </div>
+
+          {/* Data attribution */}
+          <div className="border-t border-gray-200 bg-white px-3 py-2">
+            <p className="text-[10px] text-gray-400">
+              {DATA_META.listing_count.toLocaleString()} listings from {DATA_META.sources.length} sources &middot; {DATA_META.neighborhood_count} neighborhoods &middot; Updated {DATA_META.last_updated}
+            </p>
           </div>
         </div>
 

@@ -52,16 +52,19 @@ function Footer() {
             <p className="text-sm font-medium text-gray-900">DiraFair</p>
             <p className="text-xs text-gray-500">Rental market intelligence for Tel Aviv tenants</p>
           </div>
-          <div className="flex items-center gap-6 text-xs text-gray-400">
-            <span>Data: Yad2, CBS, nadlan.gov.il</span>
-            <a
-              href="https://github.com/naorbrown/dira-fair"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-500 transition-colors hover:text-brand-navy"
-            >
-              GitHub
-            </a>
+          <div className="flex flex-col items-end gap-1 text-xs text-gray-400">
+            <span>Data: Yad2, Homeless TLV, FB Marketplace, Komo, WinWin, OnMap, Madlan, Agora TLV, CBS, nadlan.gov.il</span>
+            <div className="flex items-center gap-4">
+              <span>Listings Q1 2026 &middot; CBS Q4 2025</span>
+              <a
+                href="https://github.com/naorbrown/dira-fair"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-500 transition-colors hover:text-brand-navy"
+              >
+                GitHub
+              </a>
+            </div>
           </div>
         </div>
       </div>

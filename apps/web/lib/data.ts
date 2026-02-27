@@ -783,20 +783,28 @@ export const SEASONAL_FAVORABILITY: Record<number, string> = {
 // ---------------------------------------------------------------------------
 
 export const DATA_META = {
-  last_updated: "2026-02-15",
+  last_updated: "2026-02-27",
   listing_count: ALL_RAW_LISTINGS.length,
   neighborhood_count: RAW_NEIGHBORHOODS.length,
+  tlv_neighborhood_count: RAW_NEIGHBORHOODS.filter((n) =>
+    !["ramat-gan", "givatayim", "bat-yam", "holon", "herzliya", "bnei-brak", "petah-tikva",
+      "rishon-lezion", "rehovot", "netanya", "ashdod", "modiin"].includes(n.id)
+  ).length,
+  surrounding_city_count: RAW_NEIGHBORHOODS.filter((n) =>
+    ["ramat-gan", "givatayim", "bat-yam", "holon", "herzliya", "bnei-brak", "petah-tikva",
+      "rishon-lezion", "rehovot", "netanya", "ashdod", "modiin"].includes(n.id)
+  ).length,
   sources: [
-    { name: "Yad2", type: "Rental listings", period: "Q1 2026", url: "https://www.yad2.co.il/realestate/rent?city=5000" },
-    { name: "Homeless TLV", type: "Community listings (Facebook)", period: "Q1 2026", url: "https://www.facebook.com/groups/HomelessTLV" },
-    { name: "Facebook Marketplace", type: "Direct owner listings", period: "Q1 2026", url: "https://www.facebook.com/marketplace/tel-aviv-yafo/propertyrentals" },
-    { name: "Komo", type: "Agent & private listings", period: "Q1 2026", url: "https://www.komo.co.il" },
-    { name: "WinWin", type: "Property portal", period: "Q1 2026", url: "https://www.winwin.co.il" },
-    { name: "OnMap", type: "Map-based search", period: "Q1 2026", url: "https://www.onmap.co.il" },
-    { name: "Madlan", type: "Data-rich analytics", period: "Q1 2026", url: "https://www.madlan.co.il" },
-    { name: "Agora TLV", type: "Expat community (Facebook)", period: "Q1 2026", url: "https://www.facebook.com/groups/AgoraTLV" },
-    { name: "CBS", type: "Official rent survey", period: "Q4 2025", url: "https://www.cbs.gov.il/en/subjects/Pages/Average-Monthly-Prices-of-Rent.aspx" },
-    { name: "nadlan.gov.il", type: "Sale transactions", period: "Q3-Q4 2025", url: "https://www.gov.il/en/service/real_estate_information" },
+    { name: "Yad2", type: "Rental listings", category: "listing_portal" as const, period: "Q1 2026", url: "https://www.yad2.co.il/realestate/rent?city=5000", description: "Israel's largest rental marketplace with ~45% of all active listings" },
+    { name: "Homeless TLV", type: "Community listings (Facebook)", category: "community" as const, period: "Q1 2026", url: "https://www.facebook.com/groups/HomelessTLV", description: "~150k member Facebook group, largest TLV apartment-finding community" },
+    { name: "Facebook Marketplace", type: "Direct owner listings", category: "community" as const, period: "Q1 2026", url: "https://www.facebook.com/marketplace/tel-aviv-yafo/propertyrentals", description: "Direct owner-to-tenant listings, often below market rate" },
+    { name: "Komo", type: "Agent & private listings", category: "listing_portal" as const, period: "Q1 2026", url: "https://www.komo.co.il", description: "Aggregator combining real estate agent and private listings" },
+    { name: "WinWin", type: "Property portal", category: "listing_portal" as const, period: "Q1 2026", url: "https://www.winwin.co.il", description: "Property portal with strong Tel Aviv coverage" },
+    { name: "OnMap", type: "Map-based search", category: "listing_portal" as const, period: "Q1 2026", url: "https://www.onmap.co.il", description: "Visual map-based apartment search platform" },
+    { name: "Madlan", type: "Data-rich analytics", category: "listing_portal" as const, period: "Q1 2026", url: "https://www.madlan.co.il", description: "Yad2 sister site with price history, analytics, and transaction data" },
+    { name: "Agora TLV", type: "Expat community (Facebook)", category: "community" as const, period: "Q1 2026", url: "https://www.facebook.com/groups/AgoraTLV", description: "English-speaking expat community board" },
+    { name: "CBS", type: "Official rent survey", category: "government" as const, period: "Q4 2025", url: "https://www.cbs.gov.il/en/subjects/Pages/Average-Monthly-Prices-of-Rent.aspx", description: "Israel Central Bureau of Statistics rent survey — new vs renewal tenant rates" },
+    { name: "nadlan.gov.il", type: "Sale transactions", category: "government" as const, period: "Q3-Q4 2025", url: "https://www.gov.il/en/service/real_estate_information", description: "Official government property registry — sale prices and transaction data" },
   ],
   cbs_period: "Q4 2025",
   /** Verification: listings marked as verified were cross-checked against 2+ sources */
@@ -872,6 +880,8 @@ export const USEFUL_LINKS = [
   { label: "Komo — Agent Listings", url: "https://www.komo.co.il/code/nadlan/apartments-for-rent.asp?cityId=5000", description: "Aggregator with real estate agent listings" },
   { label: "WinWin — Property Portal", url: "https://www.winwin.co.il/realestate/in-tel-aviv-jaffa/for-rent", description: "Property portal strong in Tel Aviv" },
   { label: "OnMap — Map Search", url: "https://www.onmap.co.il/en/rent/tel-aviv", description: "Visual map-based apartment search" },
+  { label: "Roomless — Rental Search", url: "https://www.roomless.co.il", description: "Israeli rental platform focused on verified listings and roommate matching" },
+  { label: "Janglo — English Listings", url: "https://www.janglo.net/real-estate-rentals/apartments", description: "Israel's largest English-language real estate classifieds" },
   // ── Community & social ──
   { label: "Homeless TLV (Facebook)", url: "https://www.facebook.com/groups/HomelessTLV", description: "~150k members, largest TLV apartment-finding group" },
   { label: "Agora TLV (Facebook)", url: "https://www.facebook.com/groups/AgoraTLV", description: "English-speaking TLV community board" },
@@ -880,6 +890,7 @@ export const USEFUL_LINKS = [
   // ── Official data ──
   { label: "CBS Rent Statistics", url: "https://www.cbs.gov.il/en/subjects/Pages/Average-Monthly-Prices-of-Rent.aspx", description: "Official government rent data" },
   { label: "Property transactions (nadlan.gov.il)", url: "https://www.gov.il/en/service/real_estate_information", description: "Official sale prices & property data" },
+  { label: "Bank of Israel Housing Data", url: "https://www.boi.org.il/en/research-and-publications/press-releases/", description: "Macroeconomic housing market analysis and interest rate impact data" },
   // ── Legal & tenant rights ──
   { label: "Israel Fair Rental Law guide", url: "https://lawoffice.org.il/en/fair-rental-law/", description: "Key tenant protections under the 2017 Fair Rental Law" },
   { label: "Landlord & tenant laws in Israel", url: "https://www.globalpropertyguide.com/middle-east/israel/landlord-and-tenant", description: "Comprehensive rental law overview for tenants" },
